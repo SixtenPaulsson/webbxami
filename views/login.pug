@@ -1,0 +1,10 @@
+extends template.pug 
+
+
+block content 
+    div(class="formContainer")
+       form(action="/login", method="post")
+            input( type="email", name="email", placeholder="Email")
+            input(type = "submit", value = "Login")
+
+            

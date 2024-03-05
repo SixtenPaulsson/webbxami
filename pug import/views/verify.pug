@@ -1,0 +1,8 @@
+extends template.pug 
+
+
+block content 
+    div(class="formContainer")
+       form(action="/verify", method="post")
+            input( type="text", name="code", placeholder="Code")
+            input(type = "submit", value = "Verify")

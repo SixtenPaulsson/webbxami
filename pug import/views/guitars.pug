@@ -1,0 +1,21 @@
+extends template.pug
+
+
+block content
+    if guitars
+       div(class = "formContainer guitarContainer") 
+            each guitar in guitars
+                div(class="guitar" id=guitar.id)
+                    h3(id="T:"+guitar.id)=guitar.title
+
+                    if(guitar.files)
+                        
+                        .imgContainer
+                            each file in guitar.files 
+                                div 
+                                    img(src=file, alt="fil")
+                    if user
+                        if (user.email == guitar.user.email)
+                            a(href="/guitars/"+guitar.id data-type="delete") delete
+                            input(type="text", name="title", placeholder="New Title" id="I:"+guitar.id)
+                            input(type = "submit", value = "Update",data-type="update" data-id =guitar.id)

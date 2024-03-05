@@ -1,0 +1,18 @@
+extends template.pug
+
+
+block content
+    
+    if houses
+        div(class = "formContainer houseContainer") 
+            each house in houses
+                div(class = "houseCon")
+                    h2=house.address
+                    p=house.description
+                    if(house.price)
+                        p="Pris: "+house.price
+                    button(data-type="delete",data-id=house.id) asd
+                    
+                    form(id="createTask" action="/task", method="post")
+                        input(type="text", name="taskName", placeholder="task name")
+                        input(type="number", name="procent", placeholder="Procent 0-100")

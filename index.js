@@ -1,33 +1,83 @@
+
+//Imports
 const express = require("express");
-const {log, auth} = require("./mw");
-const {guitars} = require("./controllers");
-
-const app = express();
-
+const db = require("./database");
+const app = express()
+app.use(express.json());       
+app.use(express.urlencoded({ extended: true }))
+//
+app.use(express.json());
+app.use(express.static('public'));
+app.set('view engine', 'pug')
+let uniqid = require("uniqid")
+//Lyssna
 app.listen(3456, err=> {
     if(err) return console.log(err);
-    console.log("lyssnar på 3456");   
+    console.log("http://localhost:3456");   
 });
 
-app.use(express.urlencoded({extended:true}));
-app.use(express.json());
-
-let user = "user";
-
-app.get("/guitars",log, guitars.index);
-app.post("/guitars", guitars.create);
-app.get("/guitars/:id",log, auth(user), guitars.show);
-app.delete("/guitars/:id", guitars.destroy);
-app.put("/guitars/:id", guitars.update);
 
 
-//Auth routes
 
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-app.post("/login",login);
-app.post("/verify",verify);
+//Routes
+
+//getRoute
+
+app.get("/",async (req, res)=>{
+    let houses = await db.houses();
+    //print("asd")
+    res.render("houses",{title:"Houses",houses});
+    //res.json(houses)
+});
+
+app.get("/create",async (req, res)=>{
+    //let houses = await db.houses();
+    res.render("createHouse");
+});
+app.get("/houses",async (req, res)=>{
+
+    let houses = await db.houses();
+    //console.log(houses)
+    //res.render("houses",{title:"Houses",houses});
+    res.json(houses);
+});
+//Post route
+app.post('/houses',async (req, res)=>{
+    //console.log("hej")
+    //console.log(req.body)
+    house = {
+        id:uniqid(),
+        address:req.body.address,
+        description:req.body.description,
+        price:req.body.price
+    }
+    try {
+        let result = await db.createHouse(house);
+        console.log(result)
+        res.status(201)
+        
+    } catch (error) {
+        console.log(error)
+        return ({error:"something wrong",err:error})
+    }
+    res.json(result)
+});
 
 
+app.delete('/houses',async (req, res)=>{
+    //console.log("hej")
+    //console.log(req.body)
+    try {
+        let result = await db.deleteHouse(req.body.id);
+        console.log(result)
+        
+        return res.json({message:"something happend"});
+        //res.json(houses)
+    } catch (error) {
+        console.log(error)
+        return res.json({error:"something wrong",err:error})
+    }
+    
+});
 
 

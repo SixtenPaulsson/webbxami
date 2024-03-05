@@ -1,0 +1,36 @@
+doctype html
+html 
+    head 
+        link(href="style.css", rel="stylesheet")
+        script(src="client.js" defer) 
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        meta(charset="utf-8")
+
+        if title 
+            title=title 
+        else 
+            title Default title from pug...
+
+    body 
+        header
+            
+            h1 My House Page
+            nav 
+                a(href = "/") HOME
+            
+                
+
+        main 
+
+            div(class="loginform")
+                form(id="createhouse" action="/houses", method="post")
+                    input(type="text", name="address", placeholder="house address",required)
+                    input(type="text", name="description", placeholder="Description" required)
+                    input(type="number" name="price", placeholder="price (number)", required)
+                    input(type="submit", value = "Add house")
+
+            block content
+
+        footer 
+            h2 
+                i end of page...
