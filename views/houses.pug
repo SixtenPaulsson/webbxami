@@ -11,8 +11,16 @@ block content
                     p=house.description
                     if(house.price)
                         p="Pris: "+house.price
-                    button(data-type="delete",data-id=house.id) asd
-                    
-                    form(id="createTask" action="/task", method="post")
+                    if(house.tasks)
+                        each task in house.tasks
+                            div(class = "taskCon")
+                                p=task.taskName
+                                p=task.procent
+                                p=task.id
+                        
+                    button(data-type="delete",class="deleteButton", houseid=house.id) Delete house
+                    form(id="createTask" action="/tasks", method="post")
                         input(type="text", name="taskName", placeholder="task name")
                         input(type="number", name="procent", placeholder="Procent 0-100")
+                        input(type="hidden", name="houseId",value=house.id)
+                        input(type="submit", value = "Add")

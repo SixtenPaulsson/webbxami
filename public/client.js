@@ -1,17 +1,21 @@
 console.log("client script");
-async function deletehouse(href){
-
-    let response = await fetch(href, {
-        method:"DELETE",
-    });
-
-    response = await response.json();
-
-    if(response.id) document.getElementById(response.id).remove();
- 
+if(document.querySelector(".deleteButton")){
+    document.querySelector(".deleteButton").addEventListener("click",deletehouse);
 }
 
-async function updatehouse(href,text){
+
+async function deletehouse(ev){
+    //ev.preventdefault()
+    
+    let response = await fetch("/houses",{
+        method:"DELETE",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: ev.target.getAttribute("houseid") })
+    });
+    console.log(response)
+}
+
+async function updatehouse(localhost,text){
     let response = await fetch(href,{
         method:"PUT",
         headers: { 'Content-Type': 'application/json' },
