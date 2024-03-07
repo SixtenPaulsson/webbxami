@@ -6,21 +6,24 @@ block content
     if houses
         div(class = "formContainer houseContainer") 
             each house in houses
-                div(class = "houseCon")
+                div(class = "houseCon", id=house.id)
                     h2=house.address
                     p=house.description
                     if(house.price)
                         p="Pris: "+house.price
+
+                    button(data-type="delete",class="deleteButton", houseid=house.id) Delete house
+
                     if(house.tasks)
                         each task in house.tasks
-                            div(class = "taskCon")
+                            div(class = "taskCon" id=task.id)
                                 p=task.taskName
-                                p=task.procent
-                                p=task.id
-                        
-                    button(data-type="delete",class="deleteButton", houseid=house.id) Delete house
+                                p=task.procent+"-100"
+                                button(data-type="delete",class="taskDeleteButton", taskid=task.id) Delete task
+
+
                     form(id="createTask" action="/tasks", method="post")
-                        input(type="text", name="taskName", placeholder="task name")
-                        input(type="number", name="procent", placeholder="Procent 0-100")
-                        input(type="hidden", name="houseId",value=house.id)
+                        input(type="text", name="taskName", placeholder="task name", required)
+                        input(type="number", name="procent", placeholder="Procent 0-100", required)
+                        input(type="hidden", name="houseId",value=house.id, required)
                         input(type="submit", value = "Add")

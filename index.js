@@ -44,9 +44,14 @@ app.listen(3456, err=> {
 
 //getRoute
 
+
+
+
 app.get("/",async (req, res)=>{
+
     let houses = await db.houses();
-    res.render("houses",{title:"Houses",houses});
+    console.log(houses)
+    res.render("houses",{title:"Houses",user:req.session.user,houses});
     //res.json(houses[0].tasks[0].taskName)
 });
 
@@ -59,7 +64,7 @@ app.get("/houses",async (req, res)=>{
 
 app.post('/houses',async (req, res)=>{
     //console.log("hej")
-    //console.log(req.body)
+    console.log(req.body)
     house = {
         id:uniqid(),
         address:req.body.address,
@@ -69,24 +74,24 @@ app.post('/houses',async (req, res)=>{
     try {
         let result = await db.createHouse(house);
         console.log(result)
-        return res.status(201).redirect("/");
+        return res.redirect("/");
         
     } catch (error) {
         console.log(error)
-        res.render("error",{error:"something wrong",err:error})
+        res.render("error",{err:"something wrong",error:error})
     }
 });
 app.delete('/houses',async (req, res)=>{
 
     try {
         let result = await db.deleteHouse(req.body.id);
-        console.log(result)
+        //console.log(result)
         
-        return res.json({message:"something happend"});
+        return res.send(204)
         //res.json(houses)
     } catch (error) {
         console.log(error)
-        return res.json({error:"something wrong",err:error})
+        return res.render("error",{err:"something wrong",error:error})
 }});
 app.get("/tasks",async (req, res)=>{
     let tasks = await db.tasks();
@@ -98,39 +103,84 @@ app.post('/tasks',async (req, res)=>{
     //console.log("hej")
     //console.log(req.body)
     console.log(req.body)
-
+    procent=req.body.procent
+    if(procent>100) procent=100
     task = {
         id:uniqid(),
         taskName:req.body.taskName,
-        procent:req.body.procent,
+        procent:procent,
         houseId:req.body.houseId
     }
     try {
         let result = await db.createTask(task);
         console.log(result)
-        res.send(201)
+        return res.redirect("/")
         
     } catch (error) {
         console.log(error)
-        return res.send({error:"something wrong",err:error})
+        return res.render("error",{err:"something wrong",error:error})
     }
 });
 app.delete('/tasks',async (req, res)=>{
-    //console.log("hej")
-    //console.log(req.body)
     try {
         let result = await db.deleteTask(req.body.id);
         console.log(result)
         
-        return res.json({message:"something happend"});
+        return res.sendStatus(204)
         //res.json(houses)
     } catch (error) {
         console.log(error)
-        return res.json({error:"something wrong",err:error})
+        return res.render("error",{err:"something wrong",error:error})
     }
-    
 });
 
+
+
+app.post('/users',async (req, res)=>{
+    //console.log("hej")
+    //console.log(req.body)
+    console.log(req.body)
+    procent=req.body.procent
+    if(procent>100) procent=100
+    task = {
+        id:uniqid(),
+        taskName:req.body.taskName,
+        procent:procent,
+        houseId:req.body.houseId
+    }
+    try {
+        let result = await db.createTask(task);
+        console.log(result)
+        return res.redirect("/")
+        
+    } catch (error) {
+        console.log(error)
+        return res.render("error",{err:"something wrong",error:error})
+    }
+});
+
+app.post('/login',async (req, res)=>{
+    //console.log("hej")
+    //console.log(req.body)
+    console.log(req.body)
+    procent=req.body.procent
+    if(procent>100) procent=100
+    task = {
+        id:uniqid(),
+        taskName:req.body.taskName,
+        procent:procent,
+        houseId:req.body.houseId
+    }
+    try {
+        let result = await db.createTask(task);
+        console.log(result)
+        return res.redirect("/")
+        
+    } catch (error) {
+        console.log(error)
+        return res.render("error",{err:"something wrong",error:error})
+    }
+});
 
 
 
@@ -139,8 +189,4 @@ function auth(req,res,next){
         return res.send("Must log in");
     }
     next();
-}
-
-function myFunction(ev){
-    console.log(ev);
 }

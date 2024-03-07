@@ -14,7 +14,7 @@ const pool = mysql.createPool({
 
 //Create house funktion
 async function createHouse(house){
-    console.log(house)
+    //console.log(house)
     //Skapar connection
     const con = await pool.getConnection();
     //Sql query
@@ -24,7 +24,7 @@ async function createHouse(house){
     
     
     
-    console.log(result);
+    //console.log(result);
     
     //Avslutar connectionen
     pool.releaseConnection(con);
@@ -47,7 +47,7 @@ async function deleteHouse(id){
     const result2 = await con.query(sql,[id]);
 
     //Log
-    console.log(result,result2);
+    //console.log(result,result2);
     //Release connection
     pool.releaseConnection(con);
     return result[0];
@@ -74,10 +74,10 @@ async function houses(id=""){
         for(var i = 0; i < data[0].length; i++){
 
             taskImport=await tasks(data[0][i].id)
-            console.log(taskImport)
+            //console.log(taskImport)
             data[0][i].tasks=taskImport
         }
-        console.log(data[0])
+        //console.log(data[0])
 
 
         return data[0];
@@ -102,7 +102,7 @@ async function updateHouse(id,house){
         //Releasar connection
         pool.releaseConnection(con);
         //Returnar hus
-        console.log(data[0])
+        //console.log(data[0])
         return data[0];
     } catch (error) {
         console.log("Gick fel")
@@ -111,7 +111,7 @@ async function updateHouse(id,house){
 
 async function tasks(houseId=""){
     try {
-        console.log("Försöker hämta tasks")
+        //console.log("Försöker hämta tasks")
         const con = await pool.getConnection()
         //Sql query
         if(houseId==""){
@@ -121,7 +121,7 @@ async function tasks(houseId=""){
         //Releasar connection
         pool.releaseConnection(con);
         //Returnar hus
-        console.log(data[0])
+        //console.log(data[0])
         return data[0];
         }
         else{
@@ -131,7 +131,7 @@ async function tasks(houseId=""){
             //Releasar connection
             pool.releaseConnection(con);
             //Returnar hus
-            console.log(data[0])
+            //console.log(data[0])
             return data[0];
         }
 
@@ -163,15 +163,12 @@ async function createTask(task){
 }
 
 async function deleteTask(id){
-    //Skapar connection
     const con = await pool.getConnection();
-    //Sql query
     const sql = "DELETE FROM tasks WHERE ID = (?)";
-    //Skickar frågan / binar värden
+    
     const result = await con.query(sql,[id]);
-    //Log
     console.log(result);
-    //Release connection
+
     pool.releaseConnection(con);
     //return result[0].insertId;
 }

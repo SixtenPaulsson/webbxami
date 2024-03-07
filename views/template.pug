@@ -6,7 +6,7 @@ html
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         meta(charset="utf-8")
 
-        if title 
+        if title
             title=title 
         else 
             title Default title from pug...
@@ -14,22 +14,32 @@ html
     body 
         header
             
-            h1 My House Page
-            nav 
-                a(href = "/") HOME
-                a(href="/login") LOGIN
-                a(href="/create") CREATE HOUSE
-            
-                
+            h1 WEBBXAMI
+            if(user)
+                p="inloggad"
+                p=user.name
+                p=user.password
 
         main 
 
-            div(class="loginform")
-                form(id="createhouse" action="/houses", method="post")
-                    input(type="text", name="address", placeholder="house address",required)
-                    input(type="text", name="description", placeholder="Description" required)
-                    input(type="number" name="price", placeholder="price (number)", required)
-                    input(type="submit", value = "Add")
+
+            form(action="/houses", method="post")
+                input(type="text", name="address", placeholder="house address",required)
+                input(type="text", name="description", placeholder="Description" required)
+                input(type="number" name="price", placeholder="price (number)", required)
+                input(type="submit", value = "Add")
+
+            div(class="usercon")
+                div(class="createform")
+                    form(action="/users", method="post")
+                        input(type="text", name="name", placeholder="name",required)
+                        input(type="password", name="password", placeholder="Lösenord" required)
+                        input(type="submit", value = "Create user")
+                div(class="createform")
+                    form(action="/login", method="post")
+                        input(type="text", name="name", placeholder="name",required)
+                        input(type="password", name="password", placeholder="Lösenord" required)
+                        input(type="submit", value = "login user")
 
             block content
 
