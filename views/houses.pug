@@ -20,7 +20,7 @@ block content
                                 p=task.taskName
                                 p=task.procent+"-100"
                                 button(data-type="delete",class="taskDeleteButton", taskid=task.id) Delete task
-
+                    
 
                     form(id="createTask" action="/tasks", method="post")
                         input(type="text", name="taskName", placeholder="task name", required)

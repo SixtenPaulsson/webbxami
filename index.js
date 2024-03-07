@@ -6,7 +6,6 @@ const session = require("express-session");
 const app = express()
 app.use(express.json());       
 app.use(express.urlencoded({ extended: true }))
-//
 app.use(express.json());
 app.use(express.static('public'));
 app.set('view engine', 'pug')
@@ -23,17 +22,6 @@ app.use(session({
     saveUninitialized: true,
     cookie:{ }
 }));
-
-
-/* app.get("/session",(req,res)=>{
-
-
-    //Fake login
-
-    req.session.user={id:34,user_name:"Lenny",shoe_size:34}
-
-    res.json(req.session)
-}) */
 
 app.listen(3456, err=> {
     if(err) return console.log(err);
@@ -134,22 +122,27 @@ app.delete('/tasks',async (req, res)=>{
     }
 });
 
-
+app.get('/users',async (req, res)=>{
+    try {
+        let result = await db.users();
+        console.log(result)
+        return res.json(result)
+        
+    } catch (error) {
+        console.log(error)
+        return res.render("error",{err:"something wrong",error:error})
+    }
+});
 
 app.post('/users',async (req, res)=>{
-    //console.log("hej")
-    //console.log(req.body)
-    console.log(req.body)
-    procent=req.body.procent
-    if(procent>100) procent=100
-    task = {
+    user = {
         id:uniqid(),
-        taskName:req.body.taskName,
-        procent:procent,
-        houseId:req.body.houseId
+        worker:false,
+        name:req.body.name,
+        password:req.body.password
     }
     try {
-        let result = await db.createTask(task);
+        let result = await db.createUser(user)
         console.log(result)
         return res.redirect("/")
         
@@ -161,19 +154,15 @@ app.post('/users',async (req, res)=>{
 
 app.post('/login',async (req, res)=>{
     //console.log("hej")
-    //console.log(req.body)
-    console.log(req.body)
-    procent=req.body.procent
-    if(procent>100) procent=100
-    task = {
-        id:uniqid(),
-        taskName:req.body.taskName,
-        procent:procent,
-        houseId:req.body.houseId
-    }
     try {
-        let result = await db.createTask(task);
-        console.log(result)
+        let result = await db.login(req.body.name,req.body.password);
+        //console.log(result)
+        if(result[0].name){
+            req.session.user=result[0]
+        }
+        else{
+            console.log(result)
+        }
         return res.redirect("/")
         
     } catch (error) {
