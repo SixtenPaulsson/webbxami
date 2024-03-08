@@ -15,8 +15,6 @@ app.set('view engine', 'pug');
 
 //Kanske inte behövs men det känns bra att ha ändå
 app.set('trust proxy',1)
-//req.session.cookie.maxAge=30000
-//3600000
 app.set('json spaces', 2)
 app.use(session({
     secret: 'secret',
@@ -24,6 +22,7 @@ app.use(session({
     saveUninitialized: true,
     cookie:{ }
 }));
+
 
 app.listen(3456, err=> {
     if(err) return console.log(err);
@@ -40,7 +39,7 @@ app.listen(3456, err=> {
 app.get("/",async (req, res)=>{
 
     let houses = await db.houses();
-    console.log(houses)
+    //console.log(houses)
     res.render("houses",{title:"Houses",user:req.session.user,houses});
     //res.json(houses[0].tasks[0].taskName)
 });
@@ -54,7 +53,6 @@ app.get("/houses",async (req, res)=>{
 
 app.post('/houses',auth,async (req, res)=>{
     //console.log("hej")
-    console.log(req.body)
     house = {
         id:uniqid(),
         ownerId:req.session.user.id,
@@ -64,7 +62,6 @@ app.post('/houses',auth,async (req, res)=>{
     }
     try {
         let result = await db.createHouse(house);
-        console.log(result)
         return res.redirect("/");
         
     } catch (error) {
@@ -84,14 +81,9 @@ app.delete('/houses',async (req, res)=>{
 }});
 app.get("/tasks",async (req, res)=>{
     let tasks = await db.tasks();
-    //console.log(houses)
-    //res.render("houses",{title:"Houses",houses});
-    res.json(tasks);
+    res.json(await db.tasks());
 });
 app.post('/tasks',async (req, res)=>{
-    //console.log("hej")
-    //console.log(req.body)
-    console.log(req.body)
     procent=req.body.procent
     if(procent>100) procent=100
     task = {
@@ -102,7 +94,6 @@ app.post('/tasks',async (req, res)=>{
     }
     try {
         let result = await db.createTask(task);
-        console.log(result)
         return res.redirect("/")
         
     } catch (error) {
@@ -113,7 +104,6 @@ app.post('/tasks',async (req, res)=>{
 app.delete('/tasks',async (req, res)=>{
     try {
         let result = await db.deleteTask(req.body.id);
-        console.log(result)
         return res.sendStatus(204)
         //res.json(houses)
     } catch (error) {
@@ -125,7 +115,6 @@ app.delete('/tasks',async (req, res)=>{
 app.get('/users',async (req, res)=>{
     try {
         let result = await db.users();
-        console.log(result)
         return res.json(result)
         
     } catch (error) {
@@ -155,16 +144,11 @@ app.post('/users',async (req, res)=>{
 });
 
 app.post('/login',async (req, res)=>{
-    //console.log("hej")
     try {
         let result = await db.login(req.body.name,req.body.password);
-        //console.log(result)
-        console.log(result)
         if(result[0]!=undefined){
             req.session.user=result[0]
-        }
-        else{
-            console.log(result)
+            req.session.cookie.maxAge=30000
         }
         return res.redirect("/")
         
@@ -178,6 +162,12 @@ app.post('/login',async (req, res)=>{
 app.post('/logout',auth,async (req, res)=>{
     req.session.user=undefined
     return res.redirect("/")
+});
+
+
+app.get('/vff',async (req, res)=>{
+    let values = await db.valueFromField("users","","Sixten");
+    res.json(values);
 });
 
 function auth(req,res,next){
