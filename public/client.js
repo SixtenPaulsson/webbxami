@@ -33,8 +33,8 @@ el.forEach(function(knapp){
 async function deletetask(ev){
     //ev.preventdefault()
 
-        taskId=ev.target.getAttribute("taskid")
-        console.log(taskId)
+    taskId=ev.target.getAttribute("taskid")
+    console.log(taskId)
     let response = await fetch("/tasks",{
         method:"DELETE",
         headers: { 'Content-Type': 'application/json' },
@@ -53,3 +53,28 @@ async function deletetask(ev){
 
 
 
+ele = document.querySelectorAll('.taskJoinButton')
+ele.forEach(function(knapp){
+  knapp.addEventListener('click', jointask)
+})
+
+async function jointask(ev){
+    //ev.preventdefault()
+
+    taskId=ev.target.getAttribute("taskid")
+    console.log(taskId)
+    let response = await fetch("/tasks",{
+        method:"DELETE",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: taskId})
+    });
+    console.log("hej")
+    console.log(response)
+    if(response.status==204){
+        document.getElementById(taskId).remove()
+    }
+    else{
+        if(response.status) console.log(response.status)
+    }
+    
+}

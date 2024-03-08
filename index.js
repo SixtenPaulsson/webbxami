@@ -3,19 +3,21 @@
 const express = require("express");
 const db = require("./database");
 const session = require("express-session");
-const app = express()
+const app = express();
+const uniqid = require("uniqid");
 app.use(express.json());       
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
-app.set('view engine', 'pug')
-let uniqid = require("uniqid")
+app.set('view engine', 'pug');
+
 //Lyssna
 
 //Kanske inte behövs men det känns bra att ha ändå
 app.set('trust proxy',1)
 //req.session.cookie.maxAge=30000
 //3600000
+app.set('json spaces', 2)
 app.use(session({
     secret: 'secret',
     resave: false,
@@ -50,11 +52,12 @@ app.get("/houses",async (req, res)=>{
     //res.json(houses[0].tasks[0].taskName)
 });
 
-app.post('/houses',async (req, res)=>{
+app.post('/houses',auth,async (req, res)=>{
     //console.log("hej")
     console.log(req.body)
     house = {
         id:uniqid(),
+        ownerId:req.session.user.id,
         address:req.body.address,
         description:req.body.description,
         price:req.body.price
@@ -70,11 +73,9 @@ app.post('/houses',async (req, res)=>{
     }
 });
 app.delete('/houses',async (req, res)=>{
-
     try {
         let result = await db.deleteHouse(req.body.id);
-        //console.log(result)
-        
+        //console.log(result)    
         return res.send(204)
         //res.json(houses)
     } catch (error) {
@@ -113,7 +114,6 @@ app.delete('/tasks',async (req, res)=>{
     try {
         let result = await db.deleteTask(req.body.id);
         console.log(result)
-        
         return res.sendStatus(204)
         //res.json(houses)
     } catch (error) {
@@ -135,21 +135,23 @@ app.get('/users',async (req, res)=>{
 });
 
 app.post('/users',async (req, res)=>{
-    user = {
-        id:uniqid(),
-        worker:false,
-        name:req.body.name,
-        password:req.body.password
-    }
-    try {
-        let result = await db.createUser(user)
-        console.log(result)
-        return res.redirect("/")
-        
-    } catch (error) {
-        console.log(error)
-        return res.render("error",{err:"something wrong",error:error})
-    }
+        user = {
+            id:uniqid(),
+            worker:req.body.worker=="on",
+            name:req.body.name,
+            password:req.body.password
+        }
+        try {
+            let result = await db.createUser(user)
+            //console.log(result)
+            return res.redirect("/")
+            
+        } catch (error) {
+            console.log(error)
+            return res.render("error",{err:"something wrong",error:error})
+        }
+    
+
 });
 
 app.post('/login',async (req, res)=>{
@@ -157,7 +159,8 @@ app.post('/login',async (req, res)=>{
     try {
         let result = await db.login(req.body.name,req.body.password);
         //console.log(result)
-        if(result[0].name){
+        console.log(result)
+        if(result[0]!=undefined){
             req.session.user=result[0]
         }
         else{
@@ -172,6 +175,10 @@ app.post('/login',async (req, res)=>{
 });
 
 
+app.post('/logout',auth,async (req, res)=>{
+    req.session.user=undefined
+    return res.redirect("/")
+});
 
 function auth(req,res,next){
     if(!req.session.user) {
