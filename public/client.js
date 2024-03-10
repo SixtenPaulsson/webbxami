@@ -58,23 +58,44 @@ ele.forEach(function(knapp){
   knapp.addEventListener('click', jointask)
 })
 
-async function jointask(ev){
+/* async function jointask(ev){
     //ev.preventdefault()
+
 
     taskId=ev.target.getAttribute("taskid")
     console.log(taskId)
-    let response = await fetch("/tasks",{
-        method:"DELETE",
+    let response = await fetch("/jointask",{
+        method:"POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: taskId})
+        body: JSON.stringify({ taskId: taskId})
     });
-    console.log("hej")
-    console.log(response)
-    if(response.status==204){
+/*     if(response.status==204){
         document.getElementById(taskId).remove()
     }
     else{
         if(response.status) console.log(response.status)
+    } 
+} */
+
+
+
+ele = document.querySelectorAll('.userTaskDeleteButton')
+ele.forEach(function(knapp){
+  knapp.addEventListener('click', deleteUserTask)
+})
+
+async function deleteUserTask(ev){
+    //ev.preventdefault()
+    userTaskId=ev.target.getAttribute("userTaskId")
+    let response = await fetch("/usertasks",{
+        method:"DELETE",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: userTaskId})
+    });
+    if(response.status==204){
+        document.getElementById(userTaskId).remove()
     }
-    
+    else{
+        if(response.status) console.log(response.status)
+    }
 }

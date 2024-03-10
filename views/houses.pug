@@ -11,21 +11,40 @@ block content
                     p=house.description
                     if(house.price)
                         p="Pris: "+house.price
-
-                    button(data-type="delete",class="deleteButton", houseid=house.id) Delete house
+                    if(user)
+                        if(house.ownerId==user.id)
+                            button(data-type="delete",class="deleteButton", houseid=house.id) Delete house
 
                     if(house.tasks)
                         each task in house.tasks
                             div(class = "taskCon" id=task.id)
                                 p=task.taskName
                                 p=task.procent+"-100"
-                                button(data-type="delete",class="taskDeleteButton", taskid=task.id) Delete task
+                                h3 Workers som jobbar på tasket:
+                                if(task.usertasks)
+                                    each userTask in task.usertasks 
+                                        if(userTask.user)
+                                            each u in userTask.user
+                                                div(class="userTask",id=userTask.id)
+                                                    p=u.name
+                                                    if(user)
+                                                        if(user.id==userTask.userId || house.ownerId==user.id)
+                                                            button(data-type="delete",class="userTaskDeleteButton", userTaskId=userTask.id) Delete usertask
+                                if(user)
+                                    if(house.ownerId==user.id)
+                                        button(data-type="delete",class="taskDeleteButton", taskid=task.id) Delete task
+                                
                                 if(user)
                                     if(user.worker==true)
-                                        button(data-type="delete",class="taskJoinButton", taskid=task.id) Gå med i task
+                                        form(action="/usertasks", method="post")
+                                            input(type="hidden", name="taskId", value=task.id, required)
+                                            input(type="submit", value = "Enter task")   
 
-                    form(id="createTask" action="/tasks", method="post")
-                        input(type="text", name="taskName", placeholder="task name", required)
-                        input(type="number", name="procent", placeholder="Procent 0-100", required)
-                        input(type="hidden", name="houseId",value=house.id, required)
-                        input(type="submit", value = "Add")
+
+                    if(user)
+                        if(user.worker==false)
+                            form(action="/tasks", method="post")
+                                input(type="text", name="taskName", placeholder="task name", required)
+                                input(type="number", name="procent", placeholder="Procent 0-100", required)
+                                input(type="hidden", name="houseId",value=house.id, required)
+                                input(type="submit", value = "Add")

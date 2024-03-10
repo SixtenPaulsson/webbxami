@@ -23,7 +23,7 @@ html
         main 
 
             if(user)
-                if(user.id)
+                if(user.worker==false)
                     form(action="/houses", method="post")
                         input(type="text", name="address", placeholder="house address",required)
                         input(type="text", name="description", placeholder="Description" required)
@@ -34,18 +34,22 @@ html
 
             
             
-            div(class="usercon")      
-                div(class="createform")
-                    form(action="/users", method="post")
-                        input(type="text", name="name", placeholder="name",required)
-                        input(type="password", name="password", placeholder="Lösenord" required)
-                        input(type="checkbox", name="worker", placeholder="Lösenord",class="checkbox")
-                        input(type="submit", value = "Create user")
-                div(class="createform")
-                    form(action="/login", method="post")
-                        input(type="text", name="name", placeholder="name",required)
-                        input(type="password", name="password", placeholder="Lösenord" required)
-                        input(type="submit", value = "login user")
+            div(class="usercon")
+                if(user)
+                    if(user.worker==false)
+                        div(class="createform")
+                            form(action="/users", method="post")
+                                input(type="text", name="name", placeholder="name",required)
+                                input(type="password", name="password", placeholder="Lösenord" required)
+                                input(type="checkbox", name="worker", placeholder="Lösenord",class="checkbox")
+                                input(type="submit", value = "Create user")
+                
+                if(user==undefined)
+                    div(class="createform")
+                        form(action="/login", method="post")
+                            input(type="text", name="name", placeholder="name",required)
+                            input(type="password", name="password", placeholder="Lösenord" required)
+                            input(type="submit", value = "login user")
 
 
                 if(user)
