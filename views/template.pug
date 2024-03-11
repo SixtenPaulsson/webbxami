@@ -22,8 +22,18 @@ html
 
         main 
 
+
+            
+
             if(user)
                 if(user.worker==false)
+                    div(class="workerList")
+                            
+                        if workers
+                            h3 List of workers that can be added:
+                            each worker in workers 
+                                p=worker.name
+
                     form(action="/houses", method="post")
                         input(type="text", name="address", placeholder="house address",required)
                         input(type="text", name="description", placeholder="Description" required)

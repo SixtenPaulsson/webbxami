@@ -21,33 +21,26 @@ app.use(session({
     saveUninitialized: true,
     cookie:{ }
 }));
-//session.maxAge=20000
-//app.use(getUser);
 app.listen(3456, err=> {
     if(err) return console.log(err);
     console.log("http://localhost:3456");   
 });
 
-//Routes
-
-//getRoute
-
-
-
-
 app.get("/",async (req, res)=>{
     try {
         let houses = await db.mainData(req.session.user)
-        
+        //if(houses.sqlMessage!=undefined) return res.render("error",{error:houses.sqlMessage})
+        const workers = await db.users("worker",1)
+        console.log("hej")
         console.log(houses)
-        if(houses.sqlMessage) return res.render("error",{error:houses.sqlMessage})
-        res.render("houses",{title:"Houses",user:req.session.user,houses});
+
+
+        res.render("houses",{title:"Houses",user:req.session.user,houses,workers});
     } catch (error) {
         return res.render("error",{error:error})
     }
-});                                                                 
-
-//Route för att få ut alla hus i json, finns mest i debug syfte för postman
+});      
+//#region get
 app.get("/houses",async (req, res)=>{
     try {
         let houses = await db.houses();
@@ -59,9 +52,37 @@ app.get("/houses",async (req, res)=>{
         return res.render("error",{error:error})
     }
 });
+app.get("/tasks",async (req, res)=>{
+    try {
+        let result = await db.tasks();
+        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+        return res.json(result)
+    } catch (error) {
+        return res.render("error",{error:error})
+    }
+});
+app.get('/usertasks',async (req, res)=>{
+    try {
+        let result = await db.userTasks();
+        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+        return res.json(result)
+    } catch (error) {
+        return res.render("error",{error:error})
+    }
+});
+app.get('/users',async (req, res)=>{
+    try {
+        let result = await db.users();
+        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+        return res.json(result)
+    } catch (error) {
+        return res.render("error",{error:error})
+    }
+});
+//#endregion
 
+//#region post
 app.post('/houses',auth,async (req, res)=>{
-
     try {
         house = {
             id:uniqid(),
@@ -72,23 +93,11 @@ app.post('/houses',auth,async (req, res)=>{
         }
         let result = await db.createHouse(house);
         if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
-
-        return res.redirect(201,"/");
+        return res.redirect("/");
         
     } catch (error) {
         res.render("error",{error:error})
     }
-});
-app.delete('/houses',async (req, res)=>{
-    try {
-        let result = await db.deleteHouse(req.body.id);
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage});
-        return res.send(204)
-    } catch (error) {
-        return res.render("error",{error:error})
-}});
-app.get("/tasks",async (req, res)=>{
-    return res.json(await db.tasks());
 });
 app.post('/tasks',async (req, res)=>{
     procent=req.body.procent
@@ -101,53 +110,92 @@ app.post('/tasks',async (req, res)=>{
     }
     try {
         let result = await db.createTask(task);
+        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
         return res.redirect("/")
         
     } catch (error) {
         return res.render("error",{error:error})
     }
 });
+app.post('/users',async (req, res)=>{
+    try {
+        user = {
+            id:uniqid(),
+            worker:req.body.worker=="on",
+            name:req.body.name,
+            password:req.body.password
+        }
+        let result = await db.createUser(user)
+        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+        return res.json(result)  
+    } catch (error) {
+        return res.render("error",{error:error});
+    }
+});
+app.post('/usertasks',auth,async (req, res)=>{
+    try {
+
+        userName=await db.users("name",req.body.name)
+
+        if(userName.sqlMessage) return res.render("error",{error:userName.sqlMessage})
+        if (userName.length==0) return res.render("error",{error:"no user found"})
+        if(userName.length) userName=userName[0]
+        const usertask = {
+            id:uniqid(),
+            userId:userName.id,
+            taskId:req.body.taskId,
+        }
+        let result = await db.createUserTask(usertask)
+        if(result.sqlMessage) return res.render("error",{error:sqlMessage})
+        return res.redirect("/")
+    } catch (error) {
+        return res.render("error",{error:error});
+    }
+});
+//#endregion
+
+//#region delete
+app.delete('/houses',async (req, res)=>{
+    try {
+        let result = await db.deleteHouse(req.body.id);
+        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage});
+        return res.sendStatus(204)
+    } catch (error) {
+        return res.render("error",{error:error})
+}});
 app.delete('/tasks',async (req, res)=>{
     try {
         let result = await db.deleteTask(req.body.id);
-        return res.sendStatus(204)
-        //res.json(houses)
-    } catch (error) {
-        return res.render("error",{error:error})
-    }
-});
-
-app.get('/users',async (req, res)=>{
-    try {
-        let result = await db.users();
         if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
-        return res.json(result)
+        return res.sendStatus(204)
     } catch (error) {
         return res.render("error",{error:error})
     }
 });
-
-app.post('/users',async (req, res)=>{
-
-        try {
-            user = {
-                id:uniqid(),
-                worker:req.body.worker=="on",
-                name:req.body.name,
-                password:req.body.password
-            }
-            console.log(user)
-            let result = await db.createUser(user)
-            if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
-            return res.json(result)
-            
-        } catch (error) {
-            return res.render("error",{error:error})
-        }
-    
-
+app.delete('/users',async (req, res)=>{
+    try {
+        let result = await db.deleteUser(req.body.id);
+        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+        return res.sendStatus(204)
+    } catch (error) {
+        return res.render("error",{error:error})
+    }
 });
+app.delete('/usertasks',async (req, res)=>{
+    try {
+        let result = await db.deleteUserTask(req.body.id);
+        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage});
+        return res.send(204)
+    } catch (error) {
+        return res.render("error",{error:error})
+}});
+//#endregion
 
+//#region put
+
+//#endregion
+
+//#region auth
 app.post('/login',async (req, res)=>{
     try {
         let result = await db.login(req.body.name,req.body.password);
@@ -165,61 +213,16 @@ app.post('/login',async (req, res)=>{
     }
 });
 
-
-app.post('/logout',auth,async (req, res)=>{
+app.post('/logout',async (req, res)=>{
     req.session.user=undefined
     return res.redirect("/")
 });
+//#endregion
 
-
-/* app.get('/vff',async (req, res)=>{
-    let values = await db.valueFromField("users","","Sixten");
-    res.json(values);
-}); */
+//#region middleware
 
 
 
-app.post('/usertasks',auth,async (req, res)=>{
-    try {
-        const usertask = {
-            id:uniqid(),
-            userId:req.session.user.id,
-            taskId:req.body.taskId,
-        }
-        let result = await db.createUserTask(usertask)
-        //.log(result)
-        if(result.sqlMessage){
-            return res.render("error",{error:sqlMessage})
-        }
-        return res.redirect("/")
-    } catch (error) {
-        res.json(error)
-    }
-    return res.redirect("/")
-});
-
-app.get('/usertasks',async (req, res)=>{
-    try {
-        let result = await db.userTasks();
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
-        return res.json(result)
-    } catch (error) {
-        return res.render("error",{error:error})
-    }
-});
-
-app.delete('/usertasks',async (req, res)=>{
-    try {
-        let result = await db.deleteUserTask(req.body.id);
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage});
-        return res.send(204)
-    } catch (error) {
-        return res.render("error",{error:error})
-}});
-
-
-
-//Middleware
 
 
 
@@ -232,4 +235,14 @@ function auth(req,res,next){
 
 
 
+function owns(){
 
+    next();
+}
+
+function isPartOf(){
+
+}
+
+
+//#endregion

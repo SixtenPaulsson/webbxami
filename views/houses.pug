@@ -3,9 +3,13 @@ extends template.pug
 
 block content
     
+
+    p asd
+    
     if houses
         div(class = "formContainer houseContainer") 
             each house in houses
+
                 div(class = "houseCon", id=house.id)
                     h2=house.address
                     p=house.description
@@ -35,8 +39,9 @@ block content
                                         button(data-type="delete",class="taskDeleteButton", taskid=task.id) Delete task
                                 
                                 if(user)
-                                    if(user.worker==true)
+                                    if(user.worker==false)
                                         form(action="/usertasks", method="post")
+                                            input(type="text", name="name", required)
                                             input(type="hidden", name="taskId", value=task.id, required)
                                             input(type="submit", value = "Enter task")   
 
@@ -48,3 +53,9 @@ block content
                                 input(type="number", name="procent", placeholder="Procent 0-100", required)
                                 input(type="hidden", name="houseId",value=house.id, required)
                                 input(type="submit", value = "Add")
+    if(houses.length==0)
+        if(user)
+            if(user.worker==true)
+                p du har inte blivit tilldelad till några hus 
+            else 
+                p du har inte skapat hus

@@ -49,3 +49,10 @@ input{
 .usertask{
     display: flex;
 }
+
+
+.workerList{
+    width: 80%;
+    margin:auto;
+    padding:2%;
+}

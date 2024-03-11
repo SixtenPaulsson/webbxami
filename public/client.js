@@ -9,12 +9,14 @@ housesbuttons.forEach(function(knapp){
 
 async function deletehouse(ev){
     //ev.preventdefault()
+    console.log("försöker")
     houseId=ev.target.getAttribute("houseid")
     let response = await fetch("/houses",{
         method:"DELETE",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: houseId})
     });
+    console.log(response)
     if(response.status==204){
         document.getElementById(houseId).remove()
     }

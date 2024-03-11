@@ -12,12 +12,15 @@ const pool = mysql.createPool({
 
 async function doQuery(query,queryBind=[]){
     try {
+        
         const con = await pool.getConnection()
-        console.log(query)
+                
+        //console.log(query)
         let data = await con.query(query,queryBind);
         pool.releaseConnection(con);
         return data
     } catch (error) {
+        console.log(pool)
         return error
     }
 }
@@ -27,38 +30,48 @@ function queryString(table,field=""){
     const tables = ["houses","tasks","usertask","users"]
     if(tables.includes(table)) sql+=table
     if(field!=""){
-        const fields = ["id","ownerId","address","description","price","taskName","houseId","procent","worker","name","password","userId","taskId"]
+        const fields = ["id","ownerId","address","description","price",
+                        "taskName","houseId","procent",
+                        "worker","name","password",
+                        "userId","taskId"]
         if(fields.includes(field)) sql+=" WHERE "+field+" = ?"
     }
     return sql
 }
 
 async function mainData(user){
-
-
     try {
         if(user==undefined) return []
         if(user.worker==false){
             const data = await houses("ownerId",user.id)
+            if(data.sqlmessage!=undefined) return sqlmessage
             return data
         }
         else{
             let data = await userTasks("userId",user.id)
+            
+            console.log("before")
+            console.log(data)
+            if(data.sqlmessage) return sqlmessage
+            if(data.length==0) return []
             const task = []
             for(var i = 0; i < data.length; i++){
                 task[i] = await tasks("id",data[i].taskId)
             }
+            if(task==undefined) return []
             const house = []
             for(var i = 0; i < task.length; i++){
                 house[i] = await houses("id",task[0][i].houseId)
             }
+            console.log(house)
+            console.log("hej")
+            if(house==undefined) return []
             return house[0]
         }        
     } catch (error) {
         return error
     }
 }
-
 
 
 //#region read
@@ -101,7 +114,9 @@ async function users(field="",value=""){
 }
 async function userTasks(field="",value=""){
     try {
-        const data = await doQuery(queryString("usertask",field)+ " order by id",[value]);
+        const data = await doQuery(queryString("usertask",field),[value]);
+        
+        if(data[0].length==0) return []
         data[0][0].user = await users("id", data[0][0].userId)
         return data[0]; 
     } catch (error) {
@@ -138,7 +153,7 @@ async function createUser(user){
 }
 async function createUserTask(userTask){
     try {
-        const prev = await doQuery("select * from usertask where userId=? AND taskId=?",[userTask.userId,userTask.taskId])
+        const prev = await doQuery("select * from usertask where userId= ? AND taskId= ?",[userTask.userId,userTask.taskId])
         if(prev[0].length==0){
             const sql = "INSERT INTO usertask (userId, taskId, id) VALUES (?, ?, ?)"; 
             return await doQuery(sql,[userTask.userId, userTask.taskId, userTask.id]);
