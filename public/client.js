@@ -7,6 +7,9 @@ housesbuttons.forEach(function(knapp){
   knapp.addEventListener('click', deletehouse)
 })
 
+
+
+
 async function deletehouse(ev){
     //ev.preventdefault()
     console.log("försöker")
@@ -24,6 +27,9 @@ async function deletehouse(ev){
         if(response.status) console.log(response.status)
     }
 }
+
+
+
 
 
 //Delete för tasks
@@ -88,6 +94,7 @@ ele.forEach(function(knapp){
 
 async function deleteUserTask(ev){
     //ev.preventdefault()
+    console.log(ev)
     userTaskId=ev.target.getAttribute("userTaskId")
     let response = await fetch("/usertasks",{
         method:"DELETE",
@@ -101,3 +108,26 @@ async function deleteUserTask(ev){
         if(response.status) console.log(response.status)
     }
 }
+
+
+document.querySelectorAll('.taskJoinButton').forEach(function(knapp){
+  knapp.addEventListener('submit', updHouse)
+})
+
+async function updHouse(ev){
+    //ev.preventdefault()
+
+    taskId=ev.target.getAttribute("taskid")
+    console.log(taskId)
+    let response = await fetch("/jointask",{
+        method:"POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskId: taskId})
+    });
+ if(response.status==204){
+        document.getElementById(taskId).remove()
+    }
+    else{
+        if(response.status) console.log(response.status)
+    } 
+} 

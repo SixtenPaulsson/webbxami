@@ -16,9 +16,16 @@ html
             
             h1 WEBBXAMI
             if(user)
+                form(action="/logout", method="post")
+                    input(type="submit", value = "logout")   
                 p="inloggad"
                 p=user.name
                 p=user.password
+                if(houses.length==0)
+                    if(user.worker==true)
+                        p du har inte blivit tilldelad till några hus 
+                    else 
+                        p du har inte skapat hus
 
         main 
 
@@ -30,7 +37,8 @@ html
                     div(class="workerList")
                             
                         if workers
-                            h3 List of workers that can be added:
+                            if(workers.length>0)
+                                h2 Workers som man kan lägga till i tasks
                             each worker in workers 
                                 p=worker.name
 
@@ -62,9 +70,7 @@ html
                             input(type="submit", value = "login user")
 
 
-                if(user)
-                    form(action="/logout", method="post")
-                        input(type="submit", value = "logout")            
+                if(user)         
             block content
 
         footer 

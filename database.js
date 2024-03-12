@@ -12,15 +12,17 @@ const pool = mysql.createPool({
 
 async function doQuery(query,queryBind=[]){
     try {
-        
         const con = await pool.getConnection()
-                
-        //console.log(query)
-        let data = await con.query(query,queryBind);
-        pool.releaseConnection(con);
-        return data
+        try {
+            console.log(query)
+            let data = await con.query(query,queryBind);
+            pool.releaseConnection(con);
+            return data
+        } catch (error) {
+            pool.releaseConnection(con);
+            return error
+        }
     } catch (error) {
-        console.log(pool)
         return error
     }
 }
@@ -49,26 +51,30 @@ async function mainData(user){
         }
         else{
             let data = await userTasks("userId",user.id)
-            
-            console.log("before")
+            console.log("Lista på tasks där userId="+user.id)
             console.log(data)
             if(data.sqlmessage) return sqlmessage
             if(data.length==0) return []
             const task = []
             for(var i = 0; i < data.length; i++){
-                task[i] = await tasks("id",data[i].taskId)
+                 taskdata = await tasks("id",data[i].taskId)
+                 if(taskdata.sqlmessage) return taskdata.sqlmessage
+                 if(taskdata.length==0) return [] 
+                 taskdata=taskdata[0]
+                 task[i]=taskdata
             }
-            if(task==undefined) return []
             const house = []
             for(var i = 0; i < task.length; i++){
-                house[i] = await houses("id",task[0][i].houseId)
+                housedata= await houses("id",task[i].houseId)
+                if(housedata.sqlmessage) return housedata.sqlmessage
+                if(housedata.length==0) return [] 
+                housedata=housedata[0]
+                house[i]=housedata
             }
-            console.log(house)
-            console.log("hej")
-            if(house==undefined) return []
-            return house[0]
+            return house
         }        
     } catch (error) {
+        //console.log(error)
         return error
     }
 }
@@ -96,7 +102,7 @@ async function tasks(field="",value=""){
     try {
         const data = await doQuery(queryString("tasks",field)+" ORDER by taskName",[value])
         for(var i = 0; i < data[0].length; i++){
-            usertask=await userTasks("taskId",data[0][i].id)
+            const usertask=await userTasks("taskId",data[0][i].id)
             data[0][i].usertasks=usertask
         }
         return data[0];
@@ -115,7 +121,6 @@ async function users(field="",value=""){
 async function userTasks(field="",value=""){
     try {
         const data = await doQuery(queryString("usertask",field),[value]);
-        
         if(data[0].length==0) return []
         data[0][0].user = await users("id", data[0][0].userId)
         return data[0]; 
@@ -166,38 +171,39 @@ async function createUserTask(userTask){
 //#endregion
 
 //#region update
-async function updateHouse(id,house){
+async function updateHouse(house){
     try {
-        let sql = "Update houses SET address=(?),ownerId=(?), description=(?),price=(?) WHERE id=(?)"
-        return await doQuery(sql,[house.address,house.ownerId,house.description,house.price,id]);
+        const sql = "Update houses SET address= ?, description= ?, price= ? WHERE id= ?"
+        return await doQuery(sql,[house.address, house.description, house.price,house.id]);
     } catch (error) {
         return error
     }
 }
-async function updateTask(id,task){
+async function updateTask(task){
     try {
-        let sql = "Update tasks SET id=(?),taskName=(?), task=(?),procent=(?) WHERE id=(?)"
-        return await doQuery(sql,[task.id,task.taskName,task.houseId,task.procent,id]);
+        const sql = "Update tasks SET taskName=(?), procent =(?), WHERE id=?"
+        return await doQuery(sql,[task.taskName,task.procent,task.id]);
     } catch (error) {
         return error
     }
 }
-async function updateUser(id,user){
+async function updateUser(user){
     try {
-        let sql = "Update users SET id=(?), worker=(?),name=(?),password=(?) WHERE id=(?)"
-        return await doQuery(sql,[user.id, user.worker,user.name, user.password,id]);
+        const sql = "Update users SET name=(?),password=(?) WHERE id=(?)"
+        return await doQuery(sql,[user.name, user.password, user.id]);
     } catch (error) {
         return error
     }
 }
-async function updateUserTasks(id,userTask){
+//Det finns ingen riktig anledning att kunna ändra userTasks så jag la inte till funktionaliteten
+/* async function updateUserTasks(id,userTask){
     try {
-        let sql = "Update usertask SET userId=(?), taskId=(?),id=(?) WHERE id=(?)"
+        const sql = "Update usertask SET userId=(?), taskId=(?),id=(?) WHERE id=(?)"
         return await doQuery(sql,[userTask.userId,userTask.taskId,userTask.id,id]);
     } catch (error) {
         return error
     }
-}
+} */
 //#endregion
 //#region delete
 async function deleteHouse(id){
@@ -238,7 +244,7 @@ async function deleteUserTask(id){
 async function login(name,password){
     
     try {
-        data = await doQuery(queryString("users","name")+" AND password=?",[name,password])
+        const data = await doQuery(queryString("users","name")+" AND password=?",[name,password])
         if(data[0].length==1) return data[0]
         return "fel namn eller lösenord"
     } catch (error) {
@@ -253,5 +259,5 @@ async function login(name,password){
 module.exports = {createHouse,houses,updateHouse,deleteHouse,
                   createTask, tasks, updateTask, deleteTask,
                   createUser, users, updateUser, deleteUser,
-                  createUserTask,userTasks,updateUserTasks,deleteUserTask,
+                  createUserTask,userTasks,deleteUserTask,
                   login,users,mainData};

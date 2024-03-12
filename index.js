@@ -31,8 +31,8 @@ app.get("/",async (req, res)=>{
         let houses = await db.mainData(req.session.user)
         //if(houses.sqlMessage!=undefined) return res.render("error",{error:houses.sqlMessage})
         const workers = await db.users("worker",1)
-        console.log("hej")
-        console.log(houses)
+        //console.log("hej")
+        //console.log(houses)
 
 
         res.render("houses",{title:"Houses",user:req.session.user,houses,workers});
@@ -194,6 +194,55 @@ app.delete('/usertasks',async (req, res)=>{
 //#region put
 
 //#endregion
+app.put("/houses",async (req, res)=>{
+    try {
+        house = {
+            id:req.body.id,
+            address:req.body.address,
+            description:req.body.description,
+            price:req.body.price
+        }
+        let result = await db.updateHouse(house);
+        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+        return res.redirect("/");
+        
+    } catch (error) {
+        res.render("error",{error:error})
+    }
+});
+
+app.put('/tasks',async (req, res)=>{
+    procent=req.body.procent
+    if(procent>100) procent=100
+    task = {
+        id:req.body.id,
+        taskName:req.body.taskName,
+        procent:procent
+    }
+    try {
+        let result = await db.updateTask(task);
+        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+        return res.redirect("/")
+        
+    } catch (error) {
+        return res.render("error",{error:error})
+    }
+});
+app.put('/users',async (req, res)=>{
+    try {
+        user = {
+            id:req.body.id,
+            name:req.body.name,
+            password:req.body.password
+        }
+        let result = await db.updateUser(user)
+        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+        return res.json(result)  
+    } catch (error) {
+        return res.render("error",{error:error});
+    }
+});
+
 
 //#region auth
 app.post('/login',async (req, res)=>{

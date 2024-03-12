@@ -1,10 +1,6 @@
 extends template.pug
 
-
 block content
-    
-
-    p asd
     
     if houses
         div(class = "formContainer houseContainer") 
@@ -24,8 +20,9 @@ block content
                             div(class = "taskCon" id=task.id)
                                 p=task.taskName
                                 p=task.procent+"-100"
-                                h3 Workers som jobbar på tasket:
                                 if(task.usertasks)
+                                    if(task.usertasks.length>0)
+                                        h3 Workers som jobbar på tasket:
                                     each userTask in task.usertasks 
                                         if(userTask.user)
                                             each u in userTask.user
@@ -53,9 +50,3 @@ block content
                                 input(type="number", name="procent", placeholder="Procent 0-100", required)
                                 input(type="hidden", name="houseId",value=house.id, required)
                                 input(type="submit", value = "Add")
-    if(houses.length==0)
-        if(user)
-            if(user.worker==true)
-                p du har inte blivit tilldelad till några hus 
-            else 
-                p du har inte skapat hus
