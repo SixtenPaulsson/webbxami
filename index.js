@@ -33,12 +33,7 @@ app.listen(3456, err=> {
 app.get("/",async (req, res)=>{
     try {
         let houses = await db.mainData(req.session.user)
-        //if(houses.sqlMessage!=undefined) return res.render("error",{error:houses.sqlMessage})
         const workers = await db.users("worker",1)
-        //console.log("hej")
-        //console.log(houses)
-
-
         res.render("houses",{title:"Houses",user:req.session.user,houses,workers});
     } catch (error) {
         return res.render("error",{error:error})

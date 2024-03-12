@@ -46,28 +46,26 @@ async function mainData(user){
         if(user==undefined) return []
         if(user.worker==false){
             const data = await houses("ownerId",user.id)
-            if(data.sqlmessage!=undefined) return sqlmessage
+            if(data.sqlMessage!=undefined) return sqlMessage
             return data
         }
         else{
             let data = await userTasks("userId",user.id)
             console.log("Lista på tasks där userId="+user.id)
             console.log(data)
-            if(data.sqlmessage) return sqlmessage
+            if(data.sqlMessage) return data
             if(data.length==0) return []
             const task = []
             for(var i = 0; i < data.length; i++){
                  taskdata = await tasks("id",data[i].taskId)
-                 if(taskdata.sqlmessage) return taskdata.sqlmessage
-                 if(taskdata.length==0) return [] 
+                 if(taskdata.sqlMessage) return taskdata
                  taskdata=taskdata[0]
                  task[i]=taskdata
             }
             const house = []
             for(var i = 0; i < task.length; i++){
                 housedata= await houses("id",task[i].houseId)
-                if(housedata.sqlmessage) return housedata.sqlmessage
-                if(housedata.length==0) return [] 
+                if(housedata.sqlMessage) return housedata
                 housedata=housedata[0]
                 house[i]=housedata
             }
@@ -90,6 +88,7 @@ async function houses(field="",value=""){
     try {
         const sql=queryString("houses",field)+" ORDER by address"
         const data = await doQuery(sql,[value])
+
         for(var i = 0; i < data[0].length; i++){
             data[0][i].tasks=await tasks("houseId",data[0][i].id)
         }
@@ -113,6 +112,7 @@ async function tasks(field="",value=""){
 async function users(field="",value=""){
     try {
         const data = await doQuery((queryString("users",field)+ " order by name"),[value]);
+        if(data.sqlMessage) return data
         return data[0]
     } catch (error) {
         return error
@@ -243,23 +243,10 @@ async function deleteUserTask(id){
 //#endregion
 
 
-async function login(name,password){
-    
-    try {
-        const data = await doQuery(queryString("users","name")+" AND password=?",[name,password])
-        if(data[0].length==1) return data[0]
-        return "fel namn eller lösenord"
-    } catch (error) {
-        return error
-    }
-
-    
-}
-//returnar "select * from ? where ? = ? beroende på vad man inputtar 
 
 //Exporterar
 module.exports = {createHouse,houses,updateHouse,deleteHouse,
                   createTask, tasks, updateTask, deleteTask,
                   createUser, users, updateUser, deleteUser,
                   createUserTask,userTasks,deleteUserTask,
-                  login,users,mainData};
+                  mainData};
