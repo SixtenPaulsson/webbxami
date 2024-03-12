@@ -1,9 +1,13 @@
 //Imports
+const bcrypt = require("bcrypt");
+require("dotenv").config();
+
 const express = require("express");
 const db = require("./database");
 const session = require("express-session");
 const app = express();
 const uniqid = require("uniqid");
+const { decrypt } = require("dotenv");
 app.use(express.json());       
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -123,8 +127,9 @@ app.post('/users',async (req, res)=>{
             id:uniqid(),
             worker:req.body.worker=="on",
             name:req.body.name,
-            password:req.body.password
+            password:await bcrypt.hash(req.body.password,12)
         }
+        console.log(process.env.secret);
         let result = await db.createUser(user)
         if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
         return res.json(result)  
@@ -247,16 +252,15 @@ app.put('/users',async (req, res)=>{
 //#region auth
 app.post('/login',async (req, res)=>{
     try {
-        let result = await db.login(req.body.name,req.body.password);
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
 
-        if(result.length==1){
-            req.session.user=result[0]
-            req.session.cookie.expires = false;
-            req.session.cookie.maxAge=30000
-        }
+        let user = await db.users("name",req.body.name)
+        if(user.sqlMessage) return res.render("error",{error:user.sqlMessage})
+        if(user.length!=1) return res.render("error",{error:"wrong name or password"})
+        if(await bcrypt.compare(req.body.password,user[0].password)==false) return res.render("error",{error:"wrong name or password"})
+        req.session.user=user[0]
+        req.session.cookie.expires = false;
+        req.session.cookie.maxAge=30000
         return res.redirect("/")
-        
     } catch (error) {
         return res.render("error",{error:error})
     }

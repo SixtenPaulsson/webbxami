@@ -11,8 +11,6 @@ housesbuttons.forEach(function(knapp){
 
 
 async function deletehouse(ev){
-    //ev.preventdefault()
-    console.log("försöker")
     houseId=ev.target.getAttribute("houseid")
     let response = await fetch("/houses",{
         method:"DELETE",
