@@ -32,8 +32,8 @@ app.listen(3456, err=> {
 
 app.get("/",async (req, res)=>{
     try {
-        let houses = await db.mainData(req.session.user)
-        const workers = await db.users("worker",1)
+        let houses = await db.mainData(req.session.user);
+        const workers = await db.users("worker",1);
         res.render("houses",{title:"Houses",user:req.session.user,houses,workers});
     } catch (error) {
         return res.render("error",{error:error})
@@ -43,18 +43,14 @@ app.get("/",async (req, res)=>{
 app.get("/houses",async (req, res)=>{
     try {
         let houses = await db.houses();
-        if(houses.sqlMessage){
-            return res.render("error",{error:houses.sqlMessage})
-        }
         return res.json(houses);        
-    } catch (error) {
+    } catch (error){
         return res.render("error",{error:error})
     }
 });
 app.get("/tasks",async (req, res)=>{
     try {
         let result = await db.tasks();
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
         return res.json(result)
     } catch (error) {
         return res.render("error",{error:error})
@@ -63,7 +59,6 @@ app.get("/tasks",async (req, res)=>{
 app.get('/usertasks',async (req, res)=>{
     try {
         let result = await db.userTasks();
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
         return res.json(result)
     } catch (error) {
         return res.render("error",{error:error})
@@ -72,7 +67,6 @@ app.get('/usertasks',async (req, res)=>{
 app.get('/users',async (req, res)=>{
     try {
         let result = await db.users();
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
         return res.json(result)
     } catch (error) {
         return res.render("error",{error:error})
@@ -91,9 +85,8 @@ app.post('/houses',auth,async (req, res)=>{
             price:req.body.price
         }
         let result = await db.createHouse(house);
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
-        return res.redirect("/");
-        
+
+        return res.redirect("/");       
     } catch (error) {
         res.render("error",{error:error})
     }
@@ -109,7 +102,7 @@ app.post('/tasks',async (req, res)=>{
     }
     try {
         let result = await db.createTask(task);
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+
         return res.redirect("/")
         
     } catch (error) {
@@ -126,7 +119,7 @@ app.post('/users',async (req, res)=>{
         }
         console.log(process.env.secret);
         let result = await db.createUser(user)
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+
         return res.json(result)  
     } catch (error) {
         return res.render("error",{error:error});
@@ -158,7 +151,7 @@ app.post('/usertasks',auth,async (req, res)=>{
 app.delete('/houses',async (req, res)=>{
     try {
         let result = await db.deleteHouse(req.body.id);
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage});
+;
         return res.sendStatus(204)
     } catch (error) {
         return res.render("error",{error:error})
@@ -166,7 +159,7 @@ app.delete('/houses',async (req, res)=>{
 app.delete('/tasks',async (req, res)=>{
     try {
         let result = await db.deleteTask(req.body.id);
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+
         return res.sendStatus(204)
     } catch (error) {
         return res.render("error",{error:error})
@@ -175,7 +168,7 @@ app.delete('/tasks',async (req, res)=>{
 app.delete('/users',async (req, res)=>{
     try {
         let result = await db.deleteUser(req.body.id);
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+
         return res.sendStatus(204)
     } catch (error) {
         return res.render("error",{error:error})
@@ -184,7 +177,7 @@ app.delete('/users',async (req, res)=>{
 app.delete('/usertasks',async (req, res)=>{
     try {
         let result = await db.deleteUserTask(req.body.id);
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage});
+;
         return res.send(204)
     } catch (error) {
         return res.render("error",{error:error})
@@ -203,7 +196,7 @@ app.put("/houses",async (req, res)=>{
             price:req.body.price
         }
         let result = await db.updateHouse(house);
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+
         return res.redirect("/");
         
     } catch (error) {
@@ -220,10 +213,8 @@ app.put('/tasks',async (req, res)=>{
         procent:procent
     }
     try {
-        let result = await db.updateTask(task);
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
+        await db.updateTask(task);
         return res.redirect("/")
-        
     } catch (error) {
         return res.render("error",{error:error})
     }
@@ -236,7 +227,6 @@ app.put('/users',async (req, res)=>{
             password:req.body.password
         }
         let result = await db.updateUser(user)
-        if(result.sqlMessage) return res.render("error",{error:result.sqlMessage})
         return res.json(result)  
     } catch (error) {
         return res.render("error",{error:error});

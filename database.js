@@ -11,20 +11,9 @@ const pool = mysql.createPool({
 });
 
 async function doQuery(query,queryBind=[]){
-    try {
-        const con = await pool.getConnection()
-        try {
-            console.log(query)
-            let data = await con.query(query,queryBind);
-            pool.releaseConnection(con);
-            return data
-        } catch (error) {
-            pool.releaseConnection(con);
-            return error
-        }
-    } catch (error) {
-        return error
-    }
+    let data = await pool.query(query,queryBind);
+    if(data.sqlMessage) throw data
+    return data;
 }
 
 function queryString(table,field=""){
@@ -88,13 +77,13 @@ async function houses(field="",value=""){
     try {
         const sql=queryString("houses",field)+" ORDER by address"
         const data = await doQuery(sql,[value])
-
+        //Hämtar ut alla tasks som är kopplade till ett hus
         for(var i = 0; i < data[0].length; i++){
             data[0][i].tasks=await tasks("houseId",data[0][i].id)
         }
         return data[0];
     } catch (error) {
-        return error
+        throw error
     }
 }
 async function tasks(field="",value=""){
@@ -106,7 +95,7 @@ async function tasks(field="",value=""){
         }
         return data[0];
     } catch (error) {
-        return error
+        throw error
     }
 }
 async function users(field="",value=""){
@@ -115,7 +104,7 @@ async function users(field="",value=""){
         if(data.sqlMessage) return data
         return data[0]
     } catch (error) {
-        return error
+        throw error
     }
 }
 async function userTasks(field="",value=""){
@@ -125,7 +114,7 @@ async function userTasks(field="",value=""){
         data[0][0].user = await users("id", data[0][0].userId)
         return data[0]; 
     } catch (error) {
-        return error
+        throw error
     }
 }
 
@@ -137,7 +126,7 @@ async function createHouse(house){
         const sql = "INSERT INTO houses (id, ownerId, address, description, price) VALUES (?, ?, ?, ?, ?)";
         return await doQuery(sql,[house.id,house.ownerId,house.address,house.description,house.price])
     } catch (error) {
-        return error
+        throw error
     }
 }
 
@@ -147,7 +136,7 @@ async function createTask(task){
         const sql = "INSERT INTO tasks (id,taskName,houseId, procent) VALUES (?, ?, ?,?)";
         return await doQuery(sql,[task.id,task.taskName,task.houseId,task.procent]);
     } catch (error) {
-        return error
+        throw error
     }
 }
 async function createUser(user){
@@ -155,7 +144,7 @@ async function createUser(user){
         const sql = "INSERT INTO users (id, worker, name, password) VALUES (?, ?, ?, ?)"; 
         return await doQuery(sql,[user.id, user.worker,user.name, user.password]);
     } catch (error) {
-        return error
+        throw error
     }
 }
 async function createUserTask(userTask){
@@ -167,7 +156,7 @@ async function createUserTask(userTask){
         }
         return "Personen är redan med"
     } catch (error) {
-        return error
+        throw error
     }
 }
 //#endregion
@@ -178,7 +167,7 @@ async function updateHouse(house){
         const sql = "Update houses SET address= ?, description= ?, price= ? WHERE id= ?"
         return await doQuery(sql,[house.address, house.description, house.price,house.id]);
     } catch (error) {
-        return error
+        throw error
     }
 }
 async function updateTask(task){
@@ -186,7 +175,7 @@ async function updateTask(task){
         const sql = "Update tasks SET taskName=(?), procent =(?), WHERE id=?"
         return await doQuery(sql,[task.taskName,task.procent,task.id]);
     } catch (error) {
-        return error
+        throw error
     }
 }
 async function updateUser(user){
@@ -194,7 +183,7 @@ async function updateUser(user){
         const sql = "Update users SET name=(?),password=(?) WHERE id=(?)"
         return await doQuery(sql,[user.name, user.password, user.id]);
     } catch (error) {
-        return error
+        throw error
     }
 }
 //Det finns ingen riktig anledning att kunna ändra userTasks så jag la inte till funktionaliteten
@@ -203,7 +192,7 @@ async function updateUser(user){
         const sql = "Update usertask SET userId=(?), taskId=(?),id=(?) WHERE id=(?)"
         return await doQuery(sql,[userTask.userId,userTask.taskId,userTask.id,id]);
     } catch (error) {
-        return error
+        throw error
     }
 } */
 //#endregion
@@ -213,7 +202,7 @@ async function deleteHouse(id){
         const sql = "DELETE FROM houses WHERE id = ?";
         return await doQuery(sql,[id]); 
     } catch (error) {
-        return error
+        throw error
     }
 }
 async function deleteTask(id){
@@ -221,7 +210,7 @@ async function deleteTask(id){
         const sql = "DELETE FROM tasks WHERE id = ?";
         return await doQuery(sql,[id]); 
     } catch (error) {
-        return error
+        throw error
     }
 }
 async function deleteUser(id){
@@ -229,7 +218,7 @@ async function deleteUser(id){
         const sql = "DELETE FROM users WHERE id = ?";
         return await doQuery(sql,[id]); 
     } catch (error) {
-        return error
+        throw error
     }
 }
 async function deleteUserTask(id){
@@ -237,7 +226,7 @@ async function deleteUserTask(id){
         const sql = "DELETE FROM usertask WHERE id = ?";
         return await doQuery(sql,[id]); 
     } catch (error) {
-        return error
+        throw error
     }
 }
 //#endregion
