@@ -1,4 +1,7 @@
 block template 
 
 if error
-    h2=error 
+    if error.message
+        h2=error.message
+    if error.code 
+        h3=error.code
