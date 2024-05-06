@@ -10,6 +10,11 @@ const pool = mysql.createPool({
     database:"webbxami"
 });
 
+
+
+
+//Select * from houses where asd = ?
+//con quert("Select * from houses"" , 2)
 async function doQuery(query,queryBind=[]){
     let data = await pool.query(query,queryBind);
     if(data.sqlMessage) throw data
@@ -73,6 +78,7 @@ async function mainData(user){
 //Ifall man fyller i "field" och "value" kommer den -
 //- returna alla objekt från tabellen som har samma value i ett specifikt fält
 //
+
 async function houses(field="",value=""){
     try {
         const sql=queryString("houses",field)+" ORDER by address"
