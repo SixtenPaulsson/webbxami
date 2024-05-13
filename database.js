@@ -167,39 +167,35 @@ async function createUserTask(userTask){
 //#endregion
 
 //#region update
-async function updateHouse(house){
+async function update(table,object,id){
+    console.log("start av upddate")
     try {
-        const sql = "Update houses SET address= ?, description= ?, price= ? WHERE id= ?"
-        return await doQuery(sql,[house.address, house.description, house.price,house.id]);
+        //Sql strängen kommer tillslut bli hela update queryn
+        let sql = "Update "
+        //Dictinary/array över alla acceptabla värden, man ska inte kunna ändra id
+        tableFields = {
+            "houses":["ownerId","address","description","price"],
+            "tasks":["taskName","procent"],
+            "users":["worker","name","password"]
+        }
+        //Queryn ska bara kunna uppdatera de tables som finns
+        if(tableFields[table]!=undefined) sql+=table+" SET "
+        //Slänger på de acceptabla fälten som ska uppdateras
+        for (var i = 0; i < object.length; i++){
+            if(tableFields[table].includes(object[i].field)) sql+=(object[i].field+" = (?), ");
+        }
+        //Tar bort det sista komma tecknet och lägger på mer text
+        sql = sql.slice(0,-2)+" WHERE id= ?;";
+        //Hämtar ut varje fälts värde
+        let valueArr = object.map(e=>e.value);
+        //Lägger till så att id't blir använt i queryn
+        valueArr.push(id)
+        //Gör en query
+        return await doQuery(sql,valueArr);
     } catch (error) {
         throw error
     }
 }
-async function updateTask(task){
-    try {
-        const sql = "Update tasks SET taskName=(?), procent =(?), WHERE id=?"
-        return await doQuery(sql,[task.taskName,task.procent,task.id]);
-    } catch (error) {
-        throw error
-    }
-}
-async function updateUser(user){
-    try {
-        const sql = "Update users SET name=(?),password=(?) WHERE id=(?)"
-        return await doQuery(sql,[user.name, user.password, user.id]);
-    } catch (error) {
-        throw error
-    }
-}
-//Det finns ingen riktig anledning att kunna ändra userTasks så jag la inte till funktionaliteten
-/* async function updateUserTasks(id,userTask){
-    try {
-        const sql = "Update usertask SET userId=(?), taskId=(?),id=(?) WHERE id=(?)"
-        return await doQuery(sql,[userTask.userId,userTask.taskId,userTask.id,id]);
-    } catch (error) {
-        throw error
-    }
-} */
 //#endregion
 //#region delete
 async function deleteHouse(id){
@@ -239,8 +235,8 @@ async function deleteUserTask(id){
 
 
 //Exporterar
-module.exports = {createHouse,houses,updateHouse,deleteHouse,
-                  createTask, tasks, updateTask, deleteTask,
-                  createUser, users, updateUser, deleteUser,
+module.exports = {createHouse,houses,deleteHouse,
+                  createTask, tasks, deleteTask,
+                  createUser, users, deleteUser,
                   createUserTask,userTasks,deleteUserTask,
-                  mainData};
+                  mainData,update};

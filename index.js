@@ -198,15 +198,17 @@ app.put("/houses",async (req, res)=>{
 app.put('/tasks',async (req, res)=>{
     procent=req.body.procent
     if(procent>100) procent=100
-    task = {
-        id:req.body.id,
-        taskName:req.body.taskName,
-        procent:procent
-    }
-    try {
-        await db.updateTask(task);
-        return res.redirect("/")
+    let task = []
+    if(req.body.taskName!=undefined) task.push({field:"taskName",value:req.body.taskName})
+    if(procent!=undefined)  task.push({field:"procent",value:req.body.procent})
+    console.log(task)
+        try {
+        let asd =await db.update("tasks",task,req.body.id);
+        console.log("asd")
+        console.log(asd)
+        return res.json(asd)
     } catch (error) {
+        console.log(error)
         return res.render("error",{error:error})
     }
 });
@@ -231,7 +233,7 @@ app.post('/login',async (req, res)=>{
 
         let user = await db.users("name",req.body.name)
        
-        if(user.length!=1) return res.render("error",{error:"wrong name or password"})
+        if(user.length!=1) return res.render("error",{error:{message:"wrong name or password"}})
         if(await bcrypt.compare(req.body.password,user[0].password)==false) return res.render("error",{error:{message:"Fel lösenord eller namn"}})
         req.session.user=user[0]
         req.session.cookie.expires = false;

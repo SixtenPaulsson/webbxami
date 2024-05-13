@@ -108,24 +108,26 @@ async function deleteUserTask(ev){
 }
 
 
-document.querySelectorAll('.taskJoinButton').forEach(function(knapp){
-  knapp.addEventListener('submit', updHouse)
+document.querySelectorAll('.updTaskbtn').forEach(function(knapp){
+  knapp.addEventListener('click', updTask)
 })
 
-async function updHouse(ev){
+async function updTask(ev){
     //ev.preventdefault()
-
+    console.log("asd")
     taskId=ev.target.getAttribute("taskid")
     console.log(taskId)
-    let response = await fetch("/jointask",{
-        method:"POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ taskId: taskId})
-    });
- if(response.status==204){
-        document.getElementById(taskId).remove()
+
+    updateinfo = {
+        id:taskId,
+        taskName:"annan task",
+        procent:2
     }
-    else{
-        if(response.status) console.log(response.status)
-    } 
+    console.log("försök")
+    let response = await fetch("/tasks",{
+        method:"PUT",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateinfo)
+    });
+    console.log(response)
 } 
