@@ -73,7 +73,6 @@ app.get('/users',async (req, res)=>{
     }
 });
 //#endregion
-
 //#region post
 app.post('/houses',auth,async (req, res)=>{
     try {
@@ -101,9 +100,7 @@ app.post('/tasks',async (req, res)=>{
     }
     try {
         let result = await db.createTask(task);
-
         return res.redirect("/")
-        
     } catch (error) {
         return res.render("error",{error:error})
     }
