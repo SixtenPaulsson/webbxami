@@ -84,8 +84,7 @@ app.post('/houses',auth,async (req, res)=>{
             description:req.body.description,
             price:req.body.price
         }
-        let result = await db.createHouse(house);
-
+        await db.createHouse(house);
         return res.redirect("/");       
     } catch (error) {
         res.render("error",{error:error})
@@ -118,20 +117,18 @@ app.post('/users',async (req, res)=>{
             password:await bcrypt.hash(req.body.password,12)
         }
         console.log(process.env.secret);
-        let result = await db.createUser(user)
-
-        return res.json(result)  
+        await db.createUser(user)
+        return res.redirect("/");
+        //return res.status(201).location('/')
+        //return res.redirect("/") 
     } catch (error) {
         return res.render("error",{error:error});
     }
 });
 app.post('/usertasks',auth,async (req, res)=>{
     try {
-
         userName=await db.users("name",req.body.name)
-
-        if(userName.sqlMessage) return res.render("error",{error:userName.sqlMessage})
-        if (userName.length==0) return res.render("error",{error:"no user found"})
+        if (userName.length==0) return res.render("error",{error:{message:"Ingen user hittad"}})
         if(userName.length) userName=userName[0]
         const usertask = {
             id:uniqid(),
@@ -139,7 +136,6 @@ app.post('/usertasks',auth,async (req, res)=>{
             taskId:req.body.taskId,
         }
         let result = await db.createUserTask(usertask)
-        if(result.sqlMessage) return res.render("error",{error:sqlMessage})
         return res.redirect("/")
     } catch (error) {
         return res.render("error",{error:error});
@@ -151,11 +147,11 @@ app.post('/usertasks',auth,async (req, res)=>{
 app.delete('/houses',async (req, res)=>{
     try {
         let result = await db.deleteHouse(req.body.id);
-;
         return res.sendStatus(204)
     } catch (error) {
-        return res.render("error",{error:error})
-}});
+        return res.render("error",{error:error});
+    }
+});
 app.delete('/tasks',async (req, res)=>{
     try {
         let result = await db.deleteTask(req.body.id);
@@ -196,9 +192,7 @@ app.put("/houses",async (req, res)=>{
             price:req.body.price
         }
         let result = await db.updateHouse(house);
-
         return res.redirect("/");
-        
     } catch (error) {
         res.render("error",{error:error})
     }
@@ -239,12 +233,13 @@ app.post('/login',async (req, res)=>{
     try {
 
         let user = await db.users("name",req.body.name)
-        if(user.sqlMessage) return res.render("error",{error:user.sqlMessage})
+       
         if(user.length!=1) return res.render("error",{error:"wrong name or password"})
-        if(await bcrypt.compare(req.body.password,user[0].password)==false) return res.render("error",{error:"wrong name or password"})
+        if(await bcrypt.compare(req.body.password,user[0].password)==false) return res.render("error",{error:{message:"Fel lösenord eller namn"}})
         req.session.user=user[0]
         req.session.cookie.expires = false;
         req.session.cookie.maxAge=30000
+        
         return res.redirect("/")
     } catch (error) {
         return res.render("error",{error:error})
