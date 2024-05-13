@@ -35,9 +35,8 @@ function queryString(table,field=""){
     return sql
 }
 
-async function mainData(user){
+async function mainData(user={id:"",worker:false}){
     try {
-        if(user==undefined) return []
         if(user.worker==false){
             const data = await houses("ownerId",user.id)
             if(data.sqlMessage!=undefined) return sqlMessage
@@ -67,7 +66,7 @@ async function mainData(user){
         }        
     } catch (error) {
         //console.log(error)
-        return error
+        throw error
     }
 }
 
