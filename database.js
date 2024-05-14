@@ -159,15 +159,24 @@ async function createUserTask(userTask){
             const sql = "INSERT INTO usertask (userId, taskId, id) VALUES (?, ?, ?)"; 
             return await doQuery(sql,[userTask.userId, userTask.taskId, userTask.id]);
         }
-        return "Personen är redan med"
+        throw new Error("Personen är redan med")
     } catch (error) {
         throw error
     }
 }
 //#endregion
-
-//#region update
+//Väldigt flexibel update funktion
 async function update(table,object,id){
+    //Table är vilken tabell som ska updateras
+    //object är en array på vilka fält och värden som ska uppdateras,
+    //Id är vilken den ska uppdatera
+    //Ett typiskt object som skickas in kan se ut så här:
+    //[
+    // {field:"address",value:"annan address"},
+    // {field:"price"  ,value:"300"}
+    //]
+
+
     //Sql strängen kommer tillslut bli hela update queryn
     let sql = "Update "
     //Dictinary/array över alla acceptabla värden, man ska inte kunna ändra id
@@ -177,8 +186,11 @@ async function update(table,object,id){
         "users":["worker","name","password"]
     }
     try {
-        object = object.filter((x)=>x.field!=undefined && x.value!=undefined);
-        if(object.length>0) throw new Error("No valid update values/fields");
+        //Tar bort alla object som där field och value är odefinerade
+        console.log(object)
+        object = object.filter((x)=>x.field!=undefined && x.value!=undefined &&x.value!="");
+        console.log(object)
+        if(object.length==0) throw new Error("No valid update values/fields");
         //Queryn ska bara kunna uppdatera de tables som finns
         if(tableFields[table]!=undefined) sql+=table+" SET "
         //Slänger på de acceptabla fälten som ska uppdateras
@@ -197,25 +209,20 @@ async function update(table,object,id){
         throw error
     }
 }
-//#endregion
-//#region delete
+
+//Flexibel delete funktion, tar bort från en viss tabell där id't är lika med något
 //Borde heta delete men javascript är jobbigt
 async function remove(table, id){
     try {
-        validTables = ["houses","tasks","users","usertask"]
+        validTables = ["houses","tasks","users","userTask"]
+        
         if(!validTables.includes(table)) throw new Error("Not valid table");
-        const sql = "DELETE FROM"+table+" WHERE id = ?";
+        const sql = "DELETE FROM "+table+" WHERE id = ?";
         return await doQuery(sql,[id]); 
     } catch (error) {
         throw error
     }
 }
-
-
-//#endregion
-
-
-
 //Exporterar
 module.exports = {createHouse,houses,
                   createTask, tasks,

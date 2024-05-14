@@ -169,8 +169,7 @@ app.delete('/users',async (req, res)=>{
 });
 app.delete('/usertasks',async (req, res)=>{
     try {
-        let result = await db.remove("usertask",req.body.id);
-;
+        let result = await db.remove("userTask",req.body.id);
         return res.send(204)
     } catch (error) {
         return res.render("error",{error:error})
@@ -181,45 +180,45 @@ app.delete('/usertasks',async (req, res)=>{
 
 //#endregion
 app.put("/houses",async (req, res)=>{
+    let house = [
+        { field:"address", value:req.body.address },
+        { field:"description", value:req.body.description },
+        { field:"price", value:req.body.price },
+    ];
     try {
-        house = {
-            id:req.body.id,
-            address:req.body.address,
-            description:req.body.description,
-            price:req.body.price
-        }
-        let result = await db.updateHouse(house);
-        return res.redirect("/");
+        await db.update("houses",house,req.body.id);
+        return res.sendStatus(202)
     } catch (error) {
-        res.render("error",{error:error})
+        return res.sendStatus(400)
     }
 });
 
 app.put('/tasks',async (req, res)=>{
     procent=req.body.procent
     if(procent>100) procent=100
-    let task = []
-    if(req.body.taskName!=undefined) task.push({field:"taskName",value:req.body.taskName})
-    if(procent!=undefined)  task.push({field:"procent",value:req.body.procent})
-    console.log(task)
-        try {
-        let asd =await db.update("tasks",task,req.body.id);
-        console.log("asd")
-        console.log(asd)
-        return res.json(asd)
+    let task = [
+        {field:"taskName", value:req.body.taskName },
+        {field:"procent",  value:procent}
+    ];
+    try {
+        let result = await db.update("tasks",task,req.body.id);
+        console.log(result)
+        return res.sendStatus(202)
+        //return res.json(result)
     } catch (error) {
         console.log(error)
-        return res.render("error",{error:error})
+        return res.sendStatus(400)
+        //return res.render("error",{error:error})
     }
 });
 app.put('/users',async (req, res)=>{
+    
+    user = [
+        { field:"name",value:req.body.name},
+        { field:"password",value:req.body.password}
+    ]
     try {
-        user = {
-            id:req.body.id,
-            name:req.body.name,
-            password:req.body.password
-        }
-        let result = await db.updateUser(user)
+        let result = await db.update("users",user,req.body.id)
         return res.json(result)  
     } catch (error) {
         return res.render("error",{error:error});

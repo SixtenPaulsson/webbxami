@@ -6,11 +6,33 @@ housesbuttons = document.querySelectorAll('.deleteButton')
 housesbuttons.forEach(function(knapp){
   knapp.addEventListener('click', deletehouse)
 })
+//Delete för tasks
+el = document.querySelectorAll('.taskDeleteButton')
+el.forEach(function(knapp){
+  knapp.addEventListener('click', deletetask)
+})
+ele = document.querySelectorAll('.userTaskDeleteButton')
+ele.forEach(function(knapp){
+  knapp.addEventListener('click', deleteUserTask)
+})
 
-
-
+upd = document.querySelectorAll('.updTaskbtn')
+upd.forEach(function(knapp){
+    knapp.addEventListener('submit', updTask)
+});
+upd = document.querySelectorAll('.updHousebtn')
+upd.forEach(function(knapp){
+    knapp.addEventListener('submit', updHouse)
+})
+  
 
 async function deletehouse(ev){
+
+
+    
+    
+
+
     houseId=ev.target.getAttribute("houseid")
     let response = await fetch("/houses",{
         method:"DELETE",
@@ -26,20 +48,10 @@ async function deletehouse(ev){
     }
 }
 
-
-
-
-
-//Delete för tasks
-el = document.querySelectorAll('.taskDeleteButton')
-el.forEach(function(knapp){
-  knapp.addEventListener('click', deletetask)
-})
-
 async function deletetask(ev){
     //ev.preventdefault()
 
-    taskId=ev.target.getAttribute("taskid")
+    taskId=ev.target.getAttribute("taskId")
     console.log(taskId)
     let response = await fetch("/tasks",{
         method:"DELETE",
@@ -59,36 +71,6 @@ async function deletetask(ev){
 
 
 
-ele = document.querySelectorAll('.taskJoinButton')
-ele.forEach(function(knapp){
-  knapp.addEventListener('click', jointask)
-})
-
-/* async function jointask(ev){
-    //ev.preventdefault()
-
-
-    taskId=ev.target.getAttribute("taskid")
-    console.log(taskId)
-    let response = await fetch("/jointask",{
-        method:"POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ taskId: taskId})
-    });
-/*     if(response.status==204){
-        document.getElementById(taskId).remove()
-    }
-    else{
-        if(response.status) console.log(response.status)
-    } 
-} */
-
-
-
-ele = document.querySelectorAll('.userTaskDeleteButton')
-ele.forEach(function(knapp){
-  knapp.addEventListener('click', deleteUserTask)
-})
 
 async function deleteUserTask(ev){
     //ev.preventdefault()
@@ -107,27 +89,47 @@ async function deleteUserTask(ev){
     }
 }
 
-
-document.querySelectorAll('.updTaskbtn').forEach(function(knapp){
-  knapp.addEventListener('click', updTask)
-})
-
 async function updTask(ev){
-    //ev.preventdefault()
-    console.log("asd")
-    taskId=ev.target.getAttribute("taskid")
-    console.log(taskId)
-
-    updateinfo = {
-        id:taskId,
-        taskName:"annan task",
-        procent:2
+    ev.preventDefault();
+    let form = new FormData(ev.currentTarget)
+    let updateinfo = {
+        id:ev.target.getAttribute("taskid"),
+        procent:form.get("procent"),
+        taskName:form.get("taskName")
     }
-    console.log("försök")
     let response = await fetch("/tasks",{
         method:"PUT",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateinfo)
     });
     console.log(response)
+    if(response.status==202){
+        if(updateinfo.taskName!="")document.getElementById(updateinfo.id+":taskName").innerText=updateinfo.taskName
+        if(updateinfo.procent!="")document.getElementById(updateinfo.id+":taskProcent").innerText=updateinfo.procent+"-100"
+    }
+
+
+
+
+} 
+async function updHouse(ev){
+    ev.preventDefault();
+    let form = new FormData(ev.currentTarget)
+    let updateinfo = {
+        id:ev.target.getAttribute("houseId"),
+        address:form.get("address"),
+        description:form.get("description"),
+        price:form.get("price")
+    }
+    let response = await fetch("/houses",{
+        method:"PUT",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateinfo)
+    });
+    console.log(response)
+    if(response.status==202){
+        if(updateinfo.address!="")document.getElementById(updateinfo.id+":houseAddress").innerText=updateinfo.address
+        if(updateinfo.description!="")document.getElementById(updateinfo.id+":houseDesc").innerText=updateinfo.description
+        if(updateinfo.price!="")document.getElementById(updateinfo.id+":housePrice").innerText="Pris: "+updateinfo.price
+    }
 } 

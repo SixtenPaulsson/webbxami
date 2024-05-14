@@ -7,20 +7,30 @@ block content
             each house in houses
 
                 div(class = "houseCon", id=house.id)
-                    h2=house.address
-                    p=house.description
+                    h2(id=house.id+":houseAddress")=house.address
+                    p(id=house.id+":houseDesc")=house.description
                     if(house.price)
-                        p="Pris: "+house.price
+                        p(id=house.id+":housePrice")="Pris: "+house.price
                     if(user)
                         if(house.ownerId==user.id)
                             button(data-type="delete",class="deleteButton", houseid=house.id) Delete house
 
+                    form(class="updHousebtn", houseId=house.id)
+                        input(type="text", name="address", placeholder="new address")
+                        input(type="text", name="description", placeholder="new description")
+                        input(type="number", name="price", placeholder="Price")
+                        input(type="submit", value = "Update with values")
+
                     if(house.tasks)
                         each task in house.tasks
                             div(class = "taskCon" id=task.id)
-                                p=task.taskName
-                                p=task.procent+"-100"
-                                button(data-type="update",class="updTaskbtn", taskid=task.id) Updatehouse task
+                                p(id=task.id+":taskName")=task.taskName
+                                p(id=task.id+":taskProcent")=task.procent+"-100" 
+                                h3 Update task:
+                                form(class="updTaskbtn", taskId=task.id)
+                                    input(type="text", name="taskName", placeholder="task name")
+                                    input(type="number", name="procent", placeholder="Procent 0-100")
+                                    input(type="submit", value = "Update with values")
                                 if(task.usertasks)
                                     if(task.usertasks.length>0)
                                         h3 Workers som jobbar på tasket:
