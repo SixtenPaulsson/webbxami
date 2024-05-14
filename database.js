@@ -168,16 +168,17 @@ async function createUserTask(userTask){
 
 //#region update
 async function update(table,object,id){
-    console.log("start av upddate")
+    //Sql strängen kommer tillslut bli hela update queryn
+    let sql = "Update "
+    //Dictinary/array över alla acceptabla värden, man ska inte kunna ändra id
+    tableFields = {
+        "houses":["ownerId","address","description","price"],
+        "tasks":["taskName","procent"],
+        "users":["worker","name","password"]
+    }
     try {
-        //Sql strängen kommer tillslut bli hela update queryn
-        let sql = "Update "
-        //Dictinary/array över alla acceptabla värden, man ska inte kunna ändra id
-        tableFields = {
-            "houses":["ownerId","address","description","price"],
-            "tasks":["taskName","procent"],
-            "users":["worker","name","password"]
-        }
+        object = object.filter((x)=>x.field!=undefined && x.value!=undefined);
+        if(object.length>0) throw new Error("No valid update values/fields");
         //Queryn ska bara kunna uppdatera de tables som finns
         if(tableFields[table]!=undefined) sql+=table+" SET "
         //Slänger på de acceptabla fälten som ska uppdateras
@@ -198,45 +199,26 @@ async function update(table,object,id){
 }
 //#endregion
 //#region delete
-async function deleteHouse(id){
+//Borde heta delete men javascript är jobbigt
+async function remove(table, id){
     try {
-        const sql = "DELETE FROM houses WHERE id = ?";
+        validTables = ["houses","tasks","users","usertask"]
+        if(!validTables.includes(table)) throw new Error("Not valid table");
+        const sql = "DELETE FROM"+table+" WHERE id = ?";
         return await doQuery(sql,[id]); 
     } catch (error) {
         throw error
     }
 }
-async function deleteTask(id){
-    try {
-        const sql = "DELETE FROM tasks WHERE id = ?";
-        return await doQuery(sql,[id]); 
-    } catch (error) {
-        throw error
-    }
-}
-async function deleteUser(id){
-    try {
-        const sql = "DELETE FROM users WHERE id = ?";
-        return await doQuery(sql,[id]); 
-    } catch (error) {
-        throw error
-    }
-}
-async function deleteUserTask(id){
-    try {
-        const sql = "DELETE FROM usertask WHERE id = ?";
-        return await doQuery(sql,[id]); 
-    } catch (error) {
-        throw error
-    }
-}
+
+
 //#endregion
 
 
 
 //Exporterar
-module.exports = {createHouse,houses,deleteHouse,
-                  createTask, tasks, deleteTask,
-                  createUser, users, deleteUser,
-                  createUserTask,userTasks,deleteUserTask,
-                  mainData,update};
+module.exports = {createHouse,houses,
+                  createTask, tasks,
+                  createUser, users,
+                  createUserTask,userTasks,
+                  mainData,update,remove};

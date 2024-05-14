@@ -143,7 +143,7 @@ app.post('/usertasks',auth,async (req, res)=>{
 //#region delete
 app.delete('/houses',async (req, res)=>{
     try {
-        let result = await db.deleteHouse(req.body.id);
+        let result = await db.remove("houses",req.body.id);
         return res.sendStatus(204)
     } catch (error) {
         return res.render("error",{error:error});
@@ -151,7 +151,7 @@ app.delete('/houses',async (req, res)=>{
 });
 app.delete('/tasks',async (req, res)=>{
     try {
-        let result = await db.deleteTask(req.body.id);
+        let result = await db.remove("tasks",req.body.id);
 
         return res.sendStatus(204)
     } catch (error) {
@@ -160,7 +160,7 @@ app.delete('/tasks',async (req, res)=>{
 });
 app.delete('/users',async (req, res)=>{
     try {
-        let result = await db.deleteUser(req.body.id);
+        let result = await db.remove("users",req.body.id);
 
         return res.sendStatus(204)
     } catch (error) {
@@ -169,7 +169,7 @@ app.delete('/users',async (req, res)=>{
 });
 app.delete('/usertasks',async (req, res)=>{
     try {
-        let result = await db.deleteUserTask(req.body.id);
+        let result = await db.remove("usertask",req.body.id);
 ;
         return res.send(204)
     } catch (error) {
