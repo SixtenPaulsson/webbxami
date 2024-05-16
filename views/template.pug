@@ -20,7 +20,6 @@ html
                     input(type="submit", value = "logout")   
                 p="inloggad"
                 p=user.name
-                p=user.password
                 if(houses.length==0)
                     if(user.worker==true)
                         p du har inte blivit tilldelad till några hus 
@@ -34,6 +33,7 @@ html
 
             if(user)
                 if(user.worker==false)
+                    
                     div(class="workerList")
                             
                         if workers
@@ -41,27 +41,23 @@ html
                                 h2 Workers som man kan lägga till i tasks
                             each worker in workers
                                 p=worker.name
-
-                    form(action="/houses", method="post")
+                    button(class="toggleButton", toggleTarget="housePost") Add House
+                    form(action="/houses", method="post" class="housePost toggleList")
                         input(type="text", name="address", placeholder="house address",required)
                         input(type="text", name="description", placeholder="Description" required)
                         input(type="number" name="price", placeholder="price (number)", required)
                         input(type="submit", value = "Add")
 
-
-
-            
-            
             div(class="usercon")
                 if(user)
                     if(user.worker==false)
                         div(class="createform")
-                            form(action="/users", method="post")
+                            button(class="toggleButton", toggleTarget="addUserForm") Add user
+                            form(action="/users", method="post" class="addUserForm toggleList")
                                 input(type="text", name="name", placeholder="name",required)
                                 input(type="password", name="password", placeholder="Lösenord" required)
                                 input(type="checkbox", name="worker", placeholder="Lösenord",class="checkbox")
-                                input(type="submit", value = "Create user")
-                
+                                input(type="submit", value = "Create user")  
                 if(user==undefined)
                     div(class="createform")
                         form(action="/login", method="post")

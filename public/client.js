@@ -24,7 +24,22 @@ upd = document.querySelectorAll('.updHousebtn')
 upd.forEach(function(knapp){
     knapp.addEventListener('submit', updHouse)
 })
-  
+
+
+toggleKnapp = document.querySelectorAll('.toggleButton')
+if(toggleKnapp) toggleKnapp.forEach(function(knapp){
+    knapp.addEventListener("click",toggleButton)
+})
+function toggleButton(ev){
+    className = ev.target.getAttribute("toggleTarget")
+    let knappar = document.querySelectorAll("."+className)
+    knappar.forEach(function(knapp){
+        knapp.style.display = knapp.style.display != "block" ? "block" : "none";     
+    })
+}
+
+
+
 
 async function deletehouse(ev){
 

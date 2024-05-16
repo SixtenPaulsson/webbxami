@@ -1,4 +1,5 @@
 const mysql = require("mysql2/promise");
+const uniqid = require("uniqid");
 const pool = mysql.createPool({
     host:"localhost",
     user:"root",
@@ -44,23 +45,20 @@ async function mainData(user={id:"",worker:false}){
         }
         else{
             let data = await userTasks("userId",user.id)
-            console.log("Lista på tasks där userId="+user.id)
-            console.log(data)
-            if(data.sqlMessage) return data
             if(data.length==0) return []
             const task = []
             for(var i = 0; i < data.length; i++){
                  taskdata = await tasks("id",data[i].taskId)
-                 if(taskdata.sqlMessage) return taskdata
                  taskdata=taskdata[0]
                  task[i]=taskdata
             }
             const house = []
             for(var i = 0; i < task.length; i++){
                 housedata= await houses("id",task[i].houseId)
-                if(housedata.sqlMessage) return housedata
                 housedata=housedata[0]
                 house[i]=housedata
+
+                house[i].tasks = house[i].tasks.filter((x)=>x.usertasks.filter((y)=>y.userId==user.id).length>0);
             }
             return house
         }        
@@ -129,7 +127,8 @@ async function userTasks(field="",value=""){
 async function createHouse(house){
     try {
         const sql = "INSERT INTO houses (id, ownerId, address, description, price) VALUES (?, ?, ?, ?, ?)";
-        return await doQuery(sql,[house.id,house.ownerId,house.address,house.description,house.price])
+        console.log(house)
+        return await doQuery(sql,[uniqid(),house.ownerId,house.address,house.description,house.price])
     } catch (error) {
         throw error
     }
@@ -139,7 +138,7 @@ async function createHouse(house){
 async function createTask(task){
     try {
         const sql = "INSERT INTO tasks (id,taskName,houseId, procent) VALUES (?, ?, ?,?)";
-        return await doQuery(sql,[task.id,task.taskName,task.houseId,task.procent]);
+        return await doQuery(sql,[uniqid(),task.taskName,task.houseId,task.procent]);
     } catch (error) {
         throw error
     }
@@ -147,7 +146,7 @@ async function createTask(task){
 async function createUser(user){
     try {
         const sql = "INSERT INTO users (id, worker, name, password) VALUES (?, ?, ?, ?)"; 
-        return await doQuery(sql,[user.id, user.worker,user.name, user.password]);
+        return await doQuery(sql,[uniqid(), user.worker,user.name, user.password]);
     } catch (error) {
         throw error
     }
@@ -155,11 +154,9 @@ async function createUser(user){
 async function createUserTask(userTask){
     try {
         const prev = await doQuery("select * from usertask where userId= ? AND taskId= ?",[userTask.userId,userTask.taskId])
-        if(prev[0].length==0){
-            const sql = "INSERT INTO usertask (userId, taskId, id) VALUES (?, ?, ?)"; 
-            return await doQuery(sql,[userTask.userId, userTask.taskId, userTask.id]);
-        }
-        throw new Error("Personen är redan med")
+        if(prev[0].length!=0) throw new Error("Personen är redan med")
+        const sql = "INSERT INTO usertask (userId, taskId, id) VALUES (?, ?, ?)"; 
+        return await doQuery(sql,[userTask.userId, userTask.taskId, uniqid()]);
     } catch (error) {
         throw error
     }
@@ -187,9 +184,7 @@ async function update(table,object,id){
     }
     try {
         //Tar bort alla object som där field och value är odefinerade
-        console.log(object)
-        object = object.filter((x)=>x.field!=undefined && x.value!=undefined &&x.value!="");
-        console.log(object)
+        object = object.filter((x)=>x.field!=undefined && x.value!=undefined &&x.value!="");  
         if(object.length==0) throw new Error("No valid update values/fields");
         //Queryn ska bara kunna uppdatera de tables som finns
         if(tableFields[table]!=undefined) sql+=table+" SET "

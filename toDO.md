@@ -2,7 +2,5 @@
 
 
 # Högprio
-* Update
-
 
 # Medium

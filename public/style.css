@@ -56,3 +56,7 @@ input{
     margin:auto;
     padding:2%;
 }
+
+.toggleList{
+    display: none;
+}

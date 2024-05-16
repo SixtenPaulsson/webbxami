@@ -14,20 +14,33 @@ block content
                     if(user)
                         if(house.ownerId==user.id)
                             button(data-type="delete",class="deleteButton", houseid=house.id) Delete house
-
-                    form(class="updHousebtn", houseId=house.id)
+                    button(class="toggleButton", toggleTarget=house.id+"updHousebtn") Edit house
+                    if(user)
+                        if(user.worker==false)
+                            button(class="toggleButton", toggleTarget=house.id+"addTaskBtn") Add task
+                    form(class=house.id+"updHousebtn updHousebtn toggleList", houseId=house.id)
                         input(type="text", name="address", placeholder="new address")
                         input(type="text", name="description", placeholder="new description")
                         input(type="number", name="price", placeholder="Price")
                         input(type="submit", value = "Update with values")
-
+                    if(user)
+                        if(user.worker==false)
+                            form(action="/tasks", method="post" class=house.id+"addTaskBtn addTaskBtn toggleList")
+                                input(type="text", name="taskName", placeholder="task name", required)
+                                input(type="number", name="procent", placeholder="Procent 0-100", required)
+                                input(type="hidden", name="houseId",value=house.id, required)
+                                input(type="submit", value = "Add")
+                    if(house.tasks.length>0)
+                        h2 Tasks:
                     if(house.tasks)
                         each task in house.tasks
                             div(class = "taskCon" id=task.id)
                                 p(id=task.id+":taskName")=task.taskName
                                 p(id=task.id+":taskProcent")=task.procent+"-100" 
-                                h3 Update task:
-                                form(class="updTaskbtn", taskId=task.id)
+                                button(class="toggleButton", toggleTarget=task.id+"updTaskbtn") Edit Task
+                                button(data-type="delete",class="taskDeleteButton", taskid=task.id) Delete task
+                                button(class="toggleButton", toggleTarget=task.id+"addUserbtn") Add user
+                                form(class=task.id+"updTaskbtn updTaskbtn toggleList", taskId=task.id)
                                     input(type="text", name="taskName", placeholder="task name")
                                     input(type="number", name="procent", placeholder="Procent 0-100")
                                     input(type="submit", value = "Update with values")
@@ -43,21 +56,11 @@ block content
                                                         if(user.id==userTask.userId || house.ownerId==user.id)
                                                             button(data-type="delete",class="userTaskDeleteButton", userTaskId=userTask.id) Delete usertask
                                 if(user)
-                                    if(house.ownerId==user.id)
-                                        button(data-type="delete",class="taskDeleteButton", taskid=task.id) Delete task
-                                
-                                if(user)
                                     if(user.worker==false)
-                                        form(action="/usertasks", method="post")
+                                        form(action="/usertasks", method="post" class=task.id+"addUserbtn addUserbtn toggleList")
                                             input(type="text", name="name", required)
                                             input(type="hidden", name="taskId", value=task.id, required)
                                             input(type="submit", value = "Enter task")   
 
 
-                    if(user)
-                        if(user.worker==false)
-                            form(action="/tasks", method="post")
-                                input(type="text", name="taskName", placeholder="task name", required)
-                                input(type="number", name="procent", placeholder="Procent 0-100", required)
-                                input(type="hidden", name="houseId",value=house.id, required)
-                                input(type="submit", value = "Add")
+

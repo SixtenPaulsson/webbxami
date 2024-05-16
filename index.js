@@ -6,7 +6,7 @@ const express = require("express");
 const db = require("./database");
 const session = require("express-session");
 const app = express();
-const uniqid = require("uniqid");
+
 const { decrypt } = require("dotenv");
 app.use(express.json());       
 app.use(express.urlencoded({ extended: true }));
@@ -76,13 +76,9 @@ app.get('/users',async (req, res)=>{
 //#region post
 app.post('/houses',auth,async (req, res)=>{
     try {
-        house = {
-            id:uniqid(),
-            ownerId:req.session.user.id,
-            address:req.body.address,
-            description:req.body.description,
-            price:req.body.price
-        }
+        house = req.body;
+        house.ownerId=req.session.user.id
+        console.log(house)
         await db.createHouse(house);
         return res.redirect("/");       
     } catch (error) {
@@ -90,14 +86,9 @@ app.post('/houses',auth,async (req, res)=>{
     }
 });
 app.post('/tasks',async (req, res)=>{
-    procent=req.body.procent
-    if(procent>100) procent=100
-    task = {
-        id:uniqid(),
-        taskName:req.body.taskName,
-        procent:procent,
-        houseId:req.body.houseId
-    }
+    
+    task = req.body
+    if(task.procent>100) task.procent=100
     try {
         let result = await db.createTask(task);
         return res.redirect("/")
@@ -107,12 +98,8 @@ app.post('/tasks',async (req, res)=>{
 });
 app.post('/users',async (req, res)=>{
     try {
-        user = {
-            id:uniqid(),
-            worker:req.body.worker=="on",
-            name:req.body.name,
-            password:await bcrypt.hash(req.body.password,12)
-        }
+        user=req.body
+        user.password = await bcrypt.hash(user.password,12);        
         console.log(process.env.secret);
         await db.createUser(user)
         return res.redirect("/");
@@ -127,11 +114,8 @@ app.post('/usertasks',auth,async (req, res)=>{
         userName=await db.users("name",req.body.name)
         if (userName.length==0) return res.render("error",{error:{message:"Ingen user hittad"}})
         if(userName.length) userName=userName[0]
-        const usertask = {
-            id:uniqid(),
-            userId:userName.id,
-            taskId:req.body.taskId,
-        }
+        usertask=req.body;
+        usertask.userId = userName.id
         let result = await db.createUserTask(usertask)
         return res.redirect("/")
     } catch (error) {
@@ -170,7 +154,7 @@ app.delete('/users',async (req, res)=>{
 app.delete('/usertasks',async (req, res)=>{
     try {
         let result = await db.remove("userTask",req.body.id);
-        return res.send(204)
+        return res.sendStatus(204)
     } catch (error) {
         return res.render("error",{error:error})
 }});
@@ -212,7 +196,6 @@ app.put('/tasks',async (req, res)=>{
     }
 });
 app.put('/users',async (req, res)=>{
-    
     user = [
         { field:"name",value:req.body.name},
         { field:"password",value:req.body.password}
@@ -229,15 +212,12 @@ app.put('/users',async (req, res)=>{
 //#region auth
 app.post('/login',async (req, res)=>{
     try {
-
         let user = await db.users("name",req.body.name)
-       
-        if(user.length!=1) return res.render("error",{error:{message:"wrong name or password"}})
+        if(user.length!=1) return res.render("error",{error:{message:"Fel lösenord eller namn"}})
         if(await bcrypt.compare(req.body.password,user[0].password)==false) return res.render("error",{error:{message:"Fel lösenord eller namn"}})
         req.session.user=user[0]
-        req.session.cookie.expires = false;
-        req.session.cookie.maxAge=30000
-        
+        //req.session.cookie.expires = false;
+        req.session.cookie.maxAge=30000;
         return res.redirect("/")
     } catch (error) {
         return res.render("error",{error:error})
