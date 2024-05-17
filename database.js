@@ -23,36 +23,35 @@ async function doQuery(query,queryBind=[]){
 }
 
 function queryString(table,field=""){
-    let sql = "SELECT * FROM "
-    const tables = ["houses","tasks","usertask","users"]
-    if(tables.includes(table)) sql+=table
-    if(field!=""){
-        const fields = ["id","ownerId","address","description","price",
-                        "taskName","houseId","procent",
-                        "worker","name","password",
-                        "userId","taskId"]
-        if(fields.includes(field)) sql+=" WHERE "+field+" = ?"
+    const fields = {
+        "houses":["id","ownerId","address","description","price"],
+        "tasks":["id","taskName","procent","houseId"],
+        "users":["id","worker","name","password"],
+        "usertask":["id","userId","taskId"]
     }
+    if(fields[table]==undefined) throw new Error("Table for query is not valid")
+    if(field==""  || !fields[table].includes(field)) throw new Error("Field is not valid")
+    const sql = "SELECT * FROM "+ table +" WHERE "+ field +" = ?"
+    console.log(sql)
     return sql
 }
 
 async function mainData(user={id:"",worker:false}){
     if(user.worker==false){
         const data = await houses("ownerId",user.id)
-        if(data.sqlMessage!=undefined) return sqlMessage
         return data
     }
-    let data = await userTasks("userId",user.id)
+    const data = await userTasks("userId",user.id)
     if(data.length==0) return []
     const task = []
     for(var i = 0; i < data.length; i++){
-        taskdata = await tasks("id",data[i].taskId)
+        let taskdata = await tasks("id",data[i].taskId)
         taskdata=taskdata[0]
         task[i]=taskdata
     }
     const house = []
     for(var i = 0; i < task.length; i++){
-        housedata= await houses("id",task[i].houseId)
+        let housedata = await houses("id",task[i].houseId)
         housedata=housedata[0]
         house[i]=housedata
         house[i].tasks = house[i].tasks.filter((x)=>x.usertasks.filter((y)=>y.userId==user.id).length>0);
@@ -88,7 +87,6 @@ async function tasks(field="",value=""){
 }
 async function users(field="",value=""){
     const data = await doQuery((queryString("users",field)+ " order by name"),[value]);
-    if(data.sqlMessage) return data
     return data[0]
 }
 async function userTasks(field="",value=""){
@@ -103,8 +101,7 @@ async function userTasks(field="",value=""){
 //#region create
 async function createHouse(house){
     const sql = "INSERT INTO houses (id, ownerId, address, description, price) VALUES (?, ?, ?, ?, ?)";
-    console.log(house)
-    return await doQuery(sql,[uniqid(),house.ownerId,house.address,house.description,house.price])
+    return await doQuery(sql,[uniqid(),house.ownerId,house.address,house.description,house.price]);
 }
 
 
@@ -133,27 +130,28 @@ async function update(table,object=[],id){
     // {field:"address",value:"annan address"},
     // {field:"price"  ,value:"300"}
     //]
-
-
-    //Sql strängen kommer tillslut bli hela update queryn
-    let sql = "Update "
+    
     //Dictinary/array över alla acceptabla värden, man ska inte kunna ändra id
     tableFields = {
         "houses":["ownerId","address","description","price"],
         "tasks":["taskName","procent"],
         "users":["worker","name","password"]
     }
+    //Queryn ska bara kunna uppdatera de tables som finns
+    if(tableFields[table]==undefined) throw new Error("Table is not valid")
     //Tar bort alla object som där field och value är odefinerade
     object = object.filter((x)=>x.field!=undefined && x.value!=undefined &&x.value!="");  
     if(object.length==0) throw new Error("No valid update values/fields");
-    //Queryn ska bara kunna uppdatera de tables som finns
-    if(tableFields[table]!=undefined) sql+=table+" SET "
+    
+
     //Slänger på de acceptabla fälten som ska uppdateras
+    let where = ""
     for (var i = 0; i < object.length; i++){
-        if(tableFields[table].includes(object[i].field)) sql+=(object[i].field+" = (?), ");
+        if(tableFields[table].includes(object[i].field)) where+=(object[i].field+" = (?), ");
     }
+    let sql = "Update "+table+" SET "+where;
     //Tar bort det sista komma tecknet och lägger på mer text
-    sql = sql.slice(0,-2)+" WHERE id= ?;";
+    sql=sql.slice(0,-2)+" WHERE id= ?;";
     //Hämtar ut varje fälts värde
     let valueArr = object.map(e=>e.value);
     //Lägger till så att id't blir använt i queryn
