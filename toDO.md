@@ -1,6 +1,7 @@
 ## Todo for webbxami
 
 
-# Högprio
-
-# Medium
+# Saker
+* Bättre css
+* Bättre if satser för det workers ska kunna göra
+* MiddleWare

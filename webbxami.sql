@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 19, 2024 at 07:00 PM
+-- Generation Time: May 19, 2024 at 11:12 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -34,13 +34,6 @@ CREATE TABLE `houses` (
   `description` varchar(256) NOT NULL DEFAULT 'Ingen beskrivning',
   `price` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `houses`
---
-
-INSERT INTO `houses` (`id`, `ownerId`, `address`, `description`, `price`) VALUES
-('5vvw08fclwdpp5ql', '5vvw08fclwdpovny', 'asd', 'asd', 2);
 
 --
 -- Triggers `houses`
@@ -84,13 +77,6 @@ CREATE TABLE `tasks` (
   `houseId` varchar(255) NOT NULL,
   `procent` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tasks`
---
-
-INSERT INTO `tasks` (`id`, `taskName`, `houseId`, `procent`) VALUES
-('5vvw08fclwdpp9e9', 'asd', '5vvw08fclwdpp5ql', 2);
 
 --
 -- Triggers `tasks`
@@ -138,7 +124,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `worker`, `name`, `password`) VALUES
-('5vvw08fclwdpovny', 0, 'User', '$2b$12$W6Jq1BMKUZrnvsW9Qy.0/ePNo7s0pKlpXWL9npdXP/TuWoFPXtCsq');
+('5vvw0mclwe0y2cy', 1, 'Worker', '$2b$12$6opTjK9JTmb1ftV1Zne2SOjhJl9DbnxpwiGB9vStyl.DDnfMjPpR6'),
+('5vvw0mclwe0y95i', 0, 'User', '$2b$12$/6yGi9jEgEoomElEIVh8husZ8SzJQgiP/vG11C6Op2WZOcdOGTv7G');
 
 --
 -- Triggers `users`

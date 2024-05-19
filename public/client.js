@@ -121,6 +121,7 @@ async function deleteUserTask(ev){
         body: JSON.stringify({ id: userTaskId})
     });
     if(response.status==204){
+        console.log(userTaskId)
         document.getElementById(userTaskId).remove()
     }
     else{

@@ -235,7 +235,7 @@ app.delete('/usertasks',async (req, res)=>{
         return res.render("error",{error:error})
 }});
 
-app.delete('/usertasks',async (req, res)=>{
+app.delete('/userhouses',async (req, res)=>{
     try {
         let result = await db.remove("userHouse",req.body.id);
         return res.sendStatus(204)
@@ -320,7 +320,7 @@ app.post('/login',async (req, res)=>{
         if(await bcrypt.compare(req.body.password,user[0].password)==false) return res.render("error",{error:{message:"Fel lösenord eller namn"}})
         req.session.user=user[0]
         //req.session.cookie.expires = false;
-        req.session.cookie.maxAge=30000;
+        req.session.cookie.maxAge=240000;
         return res.redirect("/")
     } catch (error) {
         return res.render("error",{error:error})

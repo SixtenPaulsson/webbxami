@@ -17,15 +17,17 @@ block content
                     button(class="toggleButton", toggleTarget=house.id+"updHousebtn") Edit house
                     if(user)
                         if(user.worker==false)
+                            button(class="toggleButton", toggleTarget=house.id+"addUserHousebtn") Add user
                             button(class="toggleButton", toggleTarget=house.id+"addTaskBtn") Add task
                         button(class="toggleButton", toggleTarget=house.id+"addSuggestionBtn") Add Suggestion
                     include includes/updHouse.pug
                     if(user)
                         if(user.worker==false)
-                            button(class="toggleButton", toggleTarget=house.id+"addUserHousebtn") Add user
+                            
                             include includes/createUserHouse.pug
                             include includes/createTask.pug
                     include includes/createSuggestion.pug
+                    include includes/userHouses.pug
                     if(house.tasks)
                         if(house.tasks.length)
                             if(house.tasks.length>0)
@@ -33,28 +35,7 @@ block content
                     if(house.user)
                     if(house.tasks)
                         each task in house.tasks
-                            div(class = "taskCon" id=task.id)
-                                p(id=task.id+":taskName")=task.taskName
-                                p(id=task.id+":taskProcent")=task.procent+"-100" 
-                                button(class="toggleButton", toggleTarget=task.id+"updTaskbtn") Edit Task
-                                button(data-type="delete",class="taskDeleteButton", taskid=task.id) Delete task
-                                button(class="toggleButton", toggleTarget=task.id+"addUserbtn") Add user
-                                include includes/updTask.pug
-
-                                if(task.usertasks)
-                                    if(task.usertasks.length>0)
-                                        h3 Workers som jobbar på tasket:
-                                    each userTask in task.usertasks 
-                                        if(userTask.user)
-                                            each u in userTask.user
-                                                div(class="userTask",id=userTask.id)
-                                                    p=u.name
-                                                    if(user)
-                                                        if(user.id==userTask.userId || house.ownerId==user.id)
-                                                            button(data-type="delete",class="userTaskDeleteButton", userTaskId=userTask.id) Delete usertask
-                                if(user)
-                                    if(user.worker==false)
-                                        include includes/createUserTask.pug
+                            include includes/task.pug           
                     if(house.suggestions)
                         if(house.suggestions.length)
                             if(house.suggestions.length>0)
@@ -62,8 +43,8 @@ block content
                         each suggestion in house.suggestions 
                             div(class = "taskCon" id=suggestion.id)
                                 p(id=suggestion.id+":suggestionText")=suggestion.text
-                                p=house.ownerId
-                                p=user.id
+                                p=suggestion.date
+                                p="Skrivet av: "+user.name
                                 if(house.ownerId==user.id || suggestion.userId==user.id)
                                 button(class="toggleButton", toggleTarget=suggestion.id+"updSuggestionbtn") Edit Suggestion
                                 button(data-type="delete",class="suggestionDeleteButton", suggestionId=suggestion.id) Delete Suggestion

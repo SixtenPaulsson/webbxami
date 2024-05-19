@@ -50,13 +50,13 @@ async function mainData(user={id:"",worker:false}){
         const data = await houses("ownerId",user.id)
         return data
     }
-    const data2 = await doQuery("select * from houses where id = (SELECT houseId from tasks where id = (SELECT taskId FROM usertask where userId = ?))",[user.id]);
-    console.log("asdasd")
+    const data2 = await doQuery("select * from houses where id = (SELECT houseId from userhouse WHERE userId = ?)",[user.id]);
+    //console.log("asdasd")
     //Denna loopen kanske verkar vara helt redundant men här hämtas även tasks och sånt
     for(var i = 0; i < data2[0].length; i++){ 
         data2[0][i]=await houses("id",data2[0][i].id)
     }
-    console.log(data2[0])
+    //console.log(data2[0])
     
     return data2[0]
     
@@ -75,8 +75,8 @@ async function houses(field="",value=""){
     const data = await doQuery(sql,[value])
     //Hämtar ut alla tasks som är kopplade till ett hus
     for(var i = 0; i < data[0].length; i++){
-        data[0][i].tasks=await tasks("houseId",data[0][i].id)
-        //data[0][i].userHouses=await userHouse("houseId",data[0][i].id)
+        data[0][i].tasks = await tasks("houseId",data[0][i].id)
+        data[0][i].userHouses = await userHouse("houseId",data[0][i].id)
         data[0][i].suggestions = await suggestions("houseId",data[0][i].id);
     }
     return data[0];
@@ -146,7 +146,11 @@ async function createUserTask(userTask){
     const prev = await doQuery("select * from usertask where userId= ? AND taskId= ?",[userTask.userId,userTask.taskId])
     if(prev[0].length!=0) throw new Error("Personen är redan med")
     const sql = "INSERT INTO usertask (userId, taskId, id) VALUES (?, ?, ?)"; 
-    return await doQuery(sql,[userTask.userId, userTask.taskId, uniqid()]);
+    let result = await doQuery(sql,[userTask.userId, userTask.taskId, uniqid()]);
+    if(await userHouse("userId",userTask.userId).length!=[0]) await createUserHouse(userTask)
+
+
+    return result
 }
 
 async function createUserHouse(userHouse){
