@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 19, 2024 at 05:44 PM
+-- Generation Time: May 19, 2024 at 07:00 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -36,8 +36,19 @@ CREATE TABLE `houses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `houses`
+--
+
+INSERT INTO `houses` (`id`, `ownerId`, `address`, `description`, `price`) VALUES
+('5vvw08fclwdpp5ql', '5vvw08fclwdpovny', 'asd', 'asd', 2);
+
+--
 -- Triggers `houses`
 --
+DELIMITER $$
+CREATE TRIGGER `UserHouseAfterHouseDeletion` AFTER DELETE ON `houses` FOR EACH ROW DELETE FROM userhouse WHERE houseId = old.id
+$$
+DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `suggestionAfterHouseDeletion` AFTER DELETE ON `houses` FOR EACH ROW DELETE FROM suggestions WHERE houseId = old.id
 $$
@@ -75,10 +86,37 @@ CREATE TABLE `tasks` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `tasks`
+--
+
+INSERT INTO `tasks` (`id`, `taskName`, `houseId`, `procent`) VALUES
+('5vvw08fclwdpp9e9', 'asd', '5vvw08fclwdpp5ql', 2);
+
+--
 -- Triggers `tasks`
 --
 DELIMITER $$
 CREATE TRIGGER `UserTaskAfterTaskDeletion` AFTER DELETE ON `tasks` FOR EACH ROW DELETE FROM usertask WHERE taskId = old.id
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `userhouse`
+--
+
+CREATE TABLE `userhouse` (
+  `userId` varchar(255) NOT NULL,
+  `houseId` varchar(255) NOT NULL,
+  `id` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `userhouse`
+--
+DELIMITER $$
+CREATE TRIGGER `UserTaskAfterUserHouseDeletion` AFTER DELETE ON `userhouse` FOR EACH ROW DELETE FROM usertask WHERE userId = old.userId
 $$
 DELIMITER ;
 
@@ -96,8 +134,19 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `worker`, `name`, `password`) VALUES
+('5vvw08fclwdpovny', 0, 'User', '$2b$12$W6Jq1BMKUZrnvsW9Qy.0/ePNo7s0pKlpXWL9npdXP/TuWoFPXtCsq');
+
+--
 -- Triggers `users`
 --
+DELIMITER $$
+CREATE TRIGGER `UserHouseAfterUserDeletion` AFTER DELETE ON `users` FOR EACH ROW DELETE FROM userhouse WHERE userId = old.id
+$$
+DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `UserTaskAfterUserDeletion` AFTER DELETE ON `users` FOR EACH ROW DELETE FROM usertask WHERE userId = old.id
 $$
@@ -144,6 +193,12 @@ ALTER TABLE `suggestions`
 -- Indexes for table `tasks`
 --
 ALTER TABLE `tasks`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `userhouse`
+--
+ALTER TABLE `userhouse`
   ADD PRIMARY KEY (`id`);
 
 --
