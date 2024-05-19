@@ -16,6 +16,11 @@ ele.forEach(function(knapp){
   knapp.addEventListener('click', deleteUserTask)
 })
 
+ele = document.querySelectorAll('.suggestionDeleteButton')
+ele.forEach(function(knapp){
+  knapp.addEventListener('click', deleteSuggestion)
+})
+
 upd = document.querySelectorAll('.updTaskbtn')
 upd.forEach(function(knapp){
     knapp.addEventListener('submit', updTask)
@@ -24,6 +29,10 @@ upd = document.querySelectorAll('.updHousebtn')
 upd.forEach(function(knapp){
     knapp.addEventListener('submit', updHouse)
 })
+upd = document.querySelectorAll('.updSuggestionbtn')
+upd.forEach(function(knapp){
+    knapp.addEventListener('submit', updSuggestion)
+});
 
 
 toggleKnapp = document.querySelectorAll('.toggleButton')
@@ -40,12 +49,6 @@ function toggleButton(ev){
 
 
 async function deletehouse(ev){
-
-
-    
-    
-
-
     houseId=ev.target.getAttribute("houseid")
     let response = await fetch("/houses",{
         method:"DELETE",
@@ -60,6 +63,24 @@ async function deletehouse(ev){
         if(response.status) console.log(response.status)
     }
 }
+
+async function deleteSuggestion(ev){
+    suggestionId=ev.target.getAttribute("suggestionId")
+    let response = await fetch("/suggestions",{
+        method:"DELETE",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: suggestionId})
+    });
+    console.log(response)
+    if(response.status==204){
+        document.getElementById(suggestionId).remove()
+    }
+    else{
+        if(response.status) console.log(response.status)
+    }
+}
+
+
 
 async function deletetask(ev){
     //ev.preventdefault()
@@ -144,5 +165,24 @@ async function updHouse(ev){
         if(updateinfo.address!="")document.getElementById(updateinfo.id+":houseAddress").innerText=updateinfo.address
         if(updateinfo.description!="")document.getElementById(updateinfo.id+":houseDesc").innerText=updateinfo.description
         if(updateinfo.price!="")document.getElementById(updateinfo.id+":housePrice").innerText="Pris: "+updateinfo.price
+    }
+} 
+
+
+async function updSuggestion(ev){
+    ev.preventDefault();
+    let form = new FormData(ev.currentTarget)
+    let updateinfo = {
+        id:ev.target.getAttribute("suggestionId"),
+        text:form.get("text"),
+    }
+    let response = await fetch("/suggestions",{
+        method:"PUT",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateinfo)
+    });
+    console.log(response)
+    if(response.status==202){
+        if(updateinfo.text!="")document.getElementById(updateinfo.id+":suggestionText").innerText=updateinfo.text
     }
 } 

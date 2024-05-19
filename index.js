@@ -34,6 +34,7 @@ app.get("/",async (req, res)=>{
     try {
         let houses = await db.mainData(req.session.user);
         const workers = await db.users("worker",1);
+        console.log(houses)
         res.render("houses",{title:"Houses",user:req.session.user,houses,workers});
     } catch (error) {
         return res.render("error",{error:error})
@@ -70,6 +71,16 @@ app.get("/tasks",async (req, res)=>{
         return res.render("error",{error:error})
     }
 });
+
+app.get("/suggestions",async (req, res)=>{
+    try {
+        let result = await db.suggestions();
+        return res.json(result)
+    } catch (error) {
+        return res.render("error",{error:error})
+    }
+});
+
 app.get('/usertasks',async (req, res)=>{
     try {
         let result = await db.userTasks();
@@ -110,6 +121,20 @@ app.post('/tasks',async (req, res)=>{
         return res.render("error",{error:error})
     }
 });
+
+app.post('/suggestions',async (req, res)=>{    
+    suggestion = req.body
+    
+    suggestion.userId = req.session.user.id
+    console.log(suggestion)
+    try {
+        let result = await db.createSuggestion(suggestion);
+        return res.redirect("/")
+    } catch (error) {
+        return res.render("error",{error:error})
+    }
+});
+
 app.post('/users',async (req, res)=>{
     try {
         user=req.body
@@ -158,6 +183,16 @@ app.delete('/tasks',async (req, res)=>{
         return res.render("error",{error:error})
     }
 });
+
+app.delete('/suggestions',async (req, res)=>{
+    try {
+        let result = await db.remove("suggestions",req.body.id);
+        return res.sendStatus(204)
+    } catch (error) {
+        return res.render("error",{error:error})
+    }
+});
+
 app.delete('/users',async (req, res)=>{
     try {
         let result = await db.remove("users",req.body.id);
@@ -211,6 +246,23 @@ app.put('/tasks',async (req, res)=>{
         //return res.render("error",{error:error})
     }
 });
+
+app.put('/suggestions',async (req, res)=>{
+    let suggestion = [
+        {field:"text", value:req.body.text }
+    ];
+    try {
+        let result = await db.update("suggestions",suggestion,req.body.id);
+        console.log(result)
+        return res.sendStatus(202)
+        //return res.json(result)
+    } catch (error) {
+        console.log(error)
+        return res.sendStatus(400)
+        //return res.render("error",{error:error})
+    }
+});
+
 app.put('/users',async (req, res)=>{
     user = [
         { field:"name",value:req.body.name},

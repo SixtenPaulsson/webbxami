@@ -18,11 +18,12 @@ block content
                     if(user)
                         if(user.worker==false)
                             button(class="toggleButton", toggleTarget=house.id+"addTaskBtn") Add task
-                    
+                        button(class="toggleButton", toggleTarget=house.id+"addSuggestionBtn") Add Suggestion
                     include includes/updHouse.pug
                     if(user)
                         if(user.worker==false)
                             include includes/createTask.pug
+                    include includes/createSuggestion.pug
                     if(house.tasks.length)
                         if(house.tasks.length>0)
                             h2 Tasks:
@@ -50,6 +51,21 @@ block content
                                 if(user)
                                     if(user.worker==false)
                                         include includes/createUserTask.pug
-
+                    if(house.suggestions)
+                        if(house.suggestions.length)
+                            if(house.suggestions.length>0)
+                                h2 Suggestions:
+                        each suggestion in house.suggestions 
+                            div(class = "taskCon" id=suggestion.id)
+                                p(id=suggestion.id+":suggestionText")=suggestion.text
+                                p=house.ownerId
+                                p=user.id
+                                if(house.ownerId==user.id || suggestion.userId==user.id)
+                                button(class="toggleButton", toggleTarget=suggestion.id+"updSuggestionbtn") Edit Suggestion
+                                button(data-type="delete",class="suggestionDeleteButton", suggestionId=suggestion.id) Delete Suggestion
+                                include includes/updSuggestion.pug
+                            
+                            
+                            
 
 
