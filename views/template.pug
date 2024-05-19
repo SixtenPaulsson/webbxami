@@ -5,7 +5,6 @@ html
         script(src="client.js" defer) 
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         meta(charset="utf-8")
-
         if title
             title=title 
         else 
@@ -13,7 +12,6 @@ html
 
     body 
         header
-            
             h1 WEBBXAMI
             if(user)
                 form(action="/logout", method="post")
@@ -24,51 +22,29 @@ html
                     if(user.worker==true)
                         p du har inte blivit tilldelad till några hus 
                     else 
-                        p du har inte skapat hus
-                
+                        p du har inte skapat hus   
         main 
-
-
-            
-
             if(user)
                 if(user.worker==false)
-                    
-                    div(class="workerList")
-                            
+                    div(class="workerList")   
                         if workers
                             if(workers.length>0)
                                 h2 Workers som man kan lägga till i tasks
                             each worker in workers
                                 p=worker.name
                     button(class="toggleButton", toggleTarget="housePost") Add House
-                    form(action="/houses", method="post" class="housePost toggleList")
-                        input(type="text", name="address", placeholder="house address",required)
-                        input(type="text", name="description", placeholder="Description" required)
-                        input(type="number" name="price", placeholder="price (number)", required)
-                        input(type="submit", value = "Add")
-
+                    include includes/createHouse.pug
             div(class="usercon")
                 if(user)
                     if(user.worker==false)
                         div(class="createform")
                             button(class="toggleButton", toggleTarget="addUserForm") Add user
-                            form(action="/users", method="post" class="addUserForm toggleList")
-                                input(type="text", name="name", placeholder="name",required)
-                                input(type="password", name="password", placeholder="Lösenord" required)
-                                input(type="checkbox", name="worker", placeholder="Lösenord",class="checkbox")
-                                input(type="submit", value = "Create user")  
+                            include includes/createUser.pug
                 if(user==undefined)
                     div(class="createform")
-                        form(action="/login", method="post")
-                            input(type="text", name="name", placeholder="name",required)
-                            input(type="password", name="password", placeholder="Lösenord" required)
-                            input(type="submit", value = "login user")
-
-
+                        include includes/login.pug
                 if(user)         
             block content
-
         footer 
             h2 
                 i end of page...

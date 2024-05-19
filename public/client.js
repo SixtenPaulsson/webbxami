@@ -31,11 +31,9 @@ if(toggleKnapp) toggleKnapp.forEach(function(knapp){
     knapp.addEventListener("click",toggleButton)
 })
 function toggleButton(ev){
-    className = ev.target.getAttribute("toggleTarget")
-    let knappar = document.querySelectorAll("."+className)
-    knappar.forEach(function(knapp){
-        knapp.style.display = knapp.style.display != "block" ? "block" : "none";     
-    })
+    idName = ev.target.getAttribute("toggleTarget")
+    let form = document.getElementById(idName);
+    form.style.display = form.style.display != "block" ? "block" : "none";  
 }
 
 

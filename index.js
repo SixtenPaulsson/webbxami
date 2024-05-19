@@ -40,6 +40,16 @@ app.get("/",async (req, res)=>{
     }
 });      
 //#region get
+
+app.get("/admin",async (req, res)=>{
+    try {
+        res.render("admin");       
+    } catch (error){
+        return res.render("error",{error:error})
+    }
+});
+
+
 app.get("/houses",async (req, res)=>{
     try {
         let houses = await db.houses();
@@ -48,6 +58,10 @@ app.get("/houses",async (req, res)=>{
         return res.render("error",{error:error})
     }
 });
+
+
+
+
 app.get("/tasks",async (req, res)=>{
     try {
         let result = await db.tasks();
@@ -99,8 +113,10 @@ app.post('/tasks',async (req, res)=>{
 app.post('/users',async (req, res)=>{
     try {
         user=req.body
-        user.password = await bcrypt.hash(user.password,12);        
+        user.password = await bcrypt.hash(user.password,12);    
+        user.worker = req.body.worker == "on" ? true : false;
         console.log(process.env.secret);
+        console.log(user)
         await db.createUser(user)
         return res.redirect("/");
         //return res.status(201).location('/')

@@ -18,28 +18,28 @@ const pool = mysql.createPool({
 //con quert("Select * from houses"" , 2)
 async function doQuery(query,queryBind=[]){
     let data = await pool.query(query,queryBind);
+    //När ett fel uppstår så kommer det finnas med ett sqlmeddelande i objektet
     if(data.sqlMessage) throw data
     return data;
 }
-
+//Funktion som returnerar en "select from" sats
 function queryString(table,field=""){
+    //Lista på alla tables samt deras fields
     const fields = {
         "houses":["id","ownerId","address","description","price"],
         "tasks":["id","taskName","procent","houseId"],
         "users":["id","worker","name","password"],
         "usertask":["id","userId","taskId"]
     }
-    if(fields[table]==undefined) throw new Error("Table for query is not valid")
-
-
+    //Ifall inte tablet finns
+    if(!(table in fields)) throw new Error("Table for query is not valid")
     let sql = "SELECT * FROM "+ table
-    console.log(field)
+    //Ifall man vill ha med en "WHERE x = ?" i queryn
     if(field != ""){
+        //Ifall inte fieldet man ska kolla efter finns
         if(!fields[table].includes(field)) throw new Error("Field is not valid")
         sql += " WHERE "+ field +" = ?"
     }
-
-    console.log(sql)
     return sql
 }
 
@@ -48,6 +48,10 @@ async function mainData(user={id:"",worker:false}){
         const data = await houses("ownerId",user.id)
         return data
     }
+    const data2 = await doQuery("select * from houses where id = (SELECT houseId from tasks where id = ?)",["5vvw0f1sltlmnkca"])
+    console.log(data2)
+
+
     const data = await userTasks("userId",user.id)
     if(data.length==0) return []
     const task = []
@@ -76,7 +80,7 @@ async function mainData(user={id:"",worker:false}){
 //
 
 async function houses(field="",value=""){
-    const sql=queryString("houses",field)+" ORDER by address"
+    const sql = queryString("houses",field)+" ORDER by address"
     const data = await doQuery(sql,[value])
     //Hämtar ut alla tasks som är kopplade till ett hus
     for(var i = 0; i < data[0].length; i++){

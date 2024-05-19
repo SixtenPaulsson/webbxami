@@ -18,18 +18,11 @@ block content
                     if(user)
                         if(user.worker==false)
                             button(class="toggleButton", toggleTarget=house.id+"addTaskBtn") Add task
-                    form(class=house.id+"updHousebtn updHousebtn toggleList", houseId=house.id)
-                        input(type="text", name="address", placeholder="new address")
-                        input(type="text", name="description", placeholder="new description")
-                        input(type="number", name="price", placeholder="Price")
-                        input(type="submit", value = "Update with values")
+                    
+                    include includes/updHouse.pug
                     if(user)
                         if(user.worker==false)
-                            form(action="/tasks", method="post" class=house.id+"addTaskBtn addTaskBtn toggleList")
-                                input(type="text", name="taskName", placeholder="task name", required)
-                                input(type="number", name="procent", placeholder="Procent 0-100", required)
-                                input(type="hidden", name="houseId",value=house.id, required)
-                                input(type="submit", value = "Add")
+                            include includes/createTask.pug
                     if(house.tasks.length)
                         if(house.tasks.length>0)
                             h2 Tasks:
@@ -41,10 +34,8 @@ block content
                                 button(class="toggleButton", toggleTarget=task.id+"updTaskbtn") Edit Task
                                 button(data-type="delete",class="taskDeleteButton", taskid=task.id) Delete task
                                 button(class="toggleButton", toggleTarget=task.id+"addUserbtn") Add user
-                                form(class=task.id+"updTaskbtn updTaskbtn toggleList", taskId=task.id)
-                                    input(type="text", name="taskName", placeholder="task name")
-                                    input(type="number", name="procent", placeholder="Procent 0-100")
-                                    input(type="submit", value = "Update with values")
+                                include includes/updTask.pug
+
                                 if(task.usertasks)
                                     if(task.usertasks.length>0)
                                         h3 Workers som jobbar på tasket:
@@ -58,10 +49,7 @@ block content
                                                             button(data-type="delete",class="userTaskDeleteButton", userTaskId=userTask.id) Delete usertask
                                 if(user)
                                     if(user.worker==false)
-                                        form(action="/usertasks", method="post" class=task.id+"addUserbtn addUserbtn toggleList")
-                                            input(type="text", name="name", required)
-                                            input(type="hidden", name="taskId", value=task.id, required)
-                                            input(type="submit", value = "Enter task")   
+                                        include includes/createUserTask.pug
 
 
 
