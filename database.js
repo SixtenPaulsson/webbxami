@@ -30,6 +30,7 @@ function queryString(table,field=""){
         "tasks":["id","taskName","procent","houseId"],
         "users":["id","worker","name","password"],
         "usertask":["id","userId","taskId"],
+        "userhouse":["id","userId","houseId"],
         "suggestions":["id","text","houseId","userId","date"]
     }
     //Ifall inte tablet finns
@@ -49,28 +50,16 @@ async function mainData(user={id:"",worker:false}){
         const data = await houses("ownerId",user.id)
         return data
     }
-    //const data2 = await doQuery("select * from houses where id = (SELECT houseId from tasks where id = (SELECT taskId where userId = ?))",[user.id])
-    //console.log(data2)
-
-    const data = await userTasks("userId",user.id)
-    console.log(data)
-    if(data.length==0) return []
-    const task = []
-    for(var i = 0; i < data.length; i++){
-        let taskdata = await tasks("id",data[i].taskId)
-        taskdata=taskdata[0]
-        task[i]=taskdata
+    const data2 = await doQuery("select * from houses where id = (SELECT houseId from tasks where id = (SELECT taskId FROM usertask where userId = ?))",[user.id]);
+    console.log("asdasd")
+    //Denna loopen kanske verkar vara helt redundant men här hämtas även tasks och sånt
+    for(var i = 0; i < data2[0].length; i++){ 
+        data2[0][i]=await houses("id",data2[0][i].id)
     }
-    console.log(task)
-    const house = []
-    for(var i = 0; i < task.length; i++){
-        let housedata = await houses("id",task[i].houseId)
-        housedata=housedata[0]
-        house[i]=housedata
-        house[i].tasks = house[i].tasks.filter((x)=>x.usertasks.filter((y)=>y.userId==user.id).length>0);
-    }
-    return house
-      
+    console.log(data2[0])
+    
+    return data2[0]
+    
 }
 
 
@@ -87,7 +76,7 @@ async function houses(field="",value=""){
     //Hämtar ut alla tasks som är kopplade till ett hus
     for(var i = 0; i < data[0].length; i++){
         data[0][i].tasks=await tasks("houseId",data[0][i].id)
-        
+        //data[0][i].userHouses=await userHouse("houseId",data[0][i].id)
         data[0][i].suggestions = await suggestions("houseId",data[0][i].id);
     }
     return data[0];
@@ -119,16 +108,19 @@ async function users(field="",value=""){
     return data[0]
 }
 async function userTasks(field="",value=""){
-    console.log("asd")
     const data = await doQuery(queryString("usertask",field),[value]);
-    console.log(data)
     for(var i = 0; i < data[0].length; i++){
         data[0][i].user = await users("id", data[0][i].userId)
     }
-    console.log(data)
     return data[0]; 
 }
-
+async function userHouse(field="",value=""){
+    const data = await doQuery(queryString("userhouse",field),[value]);
+    for(var i = 0; i < data[0].length; i++){
+        data[0][i].user = await users("id", data[0][i].userId)
+    }
+    return data[0]; 
+}
 //#endregion
 
 //#region create
@@ -155,6 +147,13 @@ async function createUserTask(userTask){
     if(prev[0].length!=0) throw new Error("Personen är redan med")
     const sql = "INSERT INTO usertask (userId, taskId, id) VALUES (?, ?, ?)"; 
     return await doQuery(sql,[userTask.userId, userTask.taskId, uniqid()]);
+}
+
+async function createUserHouse(userHouse){
+    const prev = await doQuery("select * from userhouse where userId= ? AND houseId= ?",[userHouse.userId,userHouse.houseId])
+    if(prev[0].length!=0) throw new Error("Personen är redan med")
+    const sql = "INSERT INTO userhouse (userId, houseId, id) VALUES (?, ?, ?)"; 
+    return await doQuery(sql,[userHouse.userId, userHouse.houseId, uniqid()]);
 }
 //#endregion
 //Väldigt flexibel update funktion
@@ -201,7 +200,7 @@ async function update(table,object=[],id){
 //Flexibel delete funktion, tar bort från en viss tabell där id't är lika med något
 //Borde heta delete men javascript är jobbigt
 async function remove(table, id){
-    validTables = ["houses","tasks","users","userTask","suggestions"]    
+    validTables = ["houses","tasks","users","userTask","userHouse","suggestions"]    
     if(!validTables.includes(table)) throw new Error("Not valid table");
     const sql = "DELETE FROM "+table+" WHERE id = ?";
     return await doQuery(sql,[id]); 
@@ -212,4 +211,5 @@ module.exports = {createHouse,houses,
                   createUser, users,
                   createSuggestion,suggestions,
                   createUserTask,userTasks,
+                  createUserHouse,userHouse,
                   mainData,update,remove};

@@ -22,11 +22,15 @@ block content
                     include includes/updHouse.pug
                     if(user)
                         if(user.worker==false)
+                            button(class="toggleButton", toggleTarget=house.id+"addUserHousebtn") Add user
+                            include includes/createUserHouse.pug
                             include includes/createTask.pug
                     include includes/createSuggestion.pug
-                    if(house.tasks.length)
-                        if(house.tasks.length>0)
-                            h2 Tasks:
+                    if(house.tasks)
+                        if(house.tasks.length)
+                            if(house.tasks.length>0)
+                                h2 Tasks:
+                    if(house.user)
                     if(house.tasks)
                         each task in house.tasks
                             div(class = "taskCon" id=task.id)

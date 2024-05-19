@@ -89,6 +89,16 @@ app.get('/usertasks',async (req, res)=>{
         return res.render("error",{error:error})
     }
 });
+
+app.get('/userhouses',async (req, res)=>{
+    try {
+        let result = await db.userHouse();
+        return res.json(result)
+    } catch (error) {
+        return res.render("error",{error:error})
+    }
+});
+
 app.get('/users',async (req, res)=>{
     try {
         let result = await db.users();
@@ -163,6 +173,21 @@ app.post('/usertasks',auth,async (req, res)=>{
         return res.render("error",{error:error});
     }
 });
+
+app.post('/userhouses',auth,async (req, res)=>{
+    try {
+        userName=await db.users("name",req.body.name)
+        if (userName.length==0) return res.render("error",{error:{message:"Ingen user hittad"}})
+        if(userName.length) userName=userName[0]
+        userhouse=req.body;
+        userhouse.userId = userName.id
+        let result = await db.createUserHouse(userhouse)
+        return res.redirect("/")
+    } catch (error) {
+        return res.render("error",{error:error});
+    }
+});
+
 //#endregion
 
 //#region delete
@@ -209,6 +234,16 @@ app.delete('/usertasks',async (req, res)=>{
     } catch (error) {
         return res.render("error",{error:error})
 }});
+
+app.delete('/usertasks',async (req, res)=>{
+    try {
+        let result = await db.remove("userHouse",req.body.id);
+        return res.sendStatus(204)
+    } catch (error) {
+        return res.render("error",{error:error})
+}});
+
+
 //#endregion
 
 //#region put

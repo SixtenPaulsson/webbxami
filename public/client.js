@@ -16,6 +16,11 @@ ele.forEach(function(knapp){
   knapp.addEventListener('click', deleteUserTask)
 })
 
+ele = document.querySelectorAll('.userHouseDeleteButton')
+ele.forEach(function(knapp){
+  knapp.addEventListener('click', deleteUserHouse)
+})
+
 ele = document.querySelectorAll('.suggestionDeleteButton')
 ele.forEach(function(knapp){
   knapp.addEventListener('click', deleteSuggestion)
@@ -122,6 +127,24 @@ async function deleteUserTask(ev){
         if(response.status) console.log(response.status)
     }
 }
+
+async function deleteUserHouse(ev){
+    //ev.preventdefault()
+    console.log(ev)
+    userHouseId=ev.target.getAttribute("userHouseId")
+    let response = await fetch("/userhouses",{
+        method:"DELETE",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: userHouseId})
+    });
+    if(response.status==204){
+        document.getElementById(userHouseId).remove()
+    }
+    else{
+        if(response.status) console.log(response.status)
+    }
+}
+
 
 async function updTask(ev){
     ev.preventDefault();
