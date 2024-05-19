@@ -30,8 +30,15 @@ function queryString(table,field=""){
         "usertask":["id","userId","taskId"]
     }
     if(fields[table]==undefined) throw new Error("Table for query is not valid")
-    if(field==""  || !fields[table].includes(field)) throw new Error("Field is not valid")
-    const sql = "SELECT * FROM "+ table +" WHERE "+ field +" = ?"
+
+
+    let sql = "SELECT * FROM "+ table
+    console.log(field)
+    if(field != ""){
+        if(!fields[table].includes(field)) throw new Error("Field is not valid")
+        sql += " WHERE "+ field +" = ?"
+    }
+
     console.log(sql)
     return sql
 }
