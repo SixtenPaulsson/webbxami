@@ -18,7 +18,7 @@ if(house.tasks)
                 each usertask in task.usertasks
                     div(id=usertask.id)
                         if(usertask.user) 
-                            p=usertask.user.name
+                            p="Namn:"+usertask.user.name
                         button(data-type="delete",class="userTaskDeleteButton", userTaskId=usertask.id) Delete user from task
     if workers
         h4 Workers som man kan lägga till i tasks

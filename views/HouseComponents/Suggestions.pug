@@ -11,7 +11,6 @@ if(house.suggestions)
             p="Date: "+suggestion.date
             if(suggestion.user)
                 p="Skrivet av: "+suggestion.user.name
-            if(house.ownerId==user.id || suggestion.userId==user.id)
             if(suggestion.userId==user.id || house.ownerId==user.id)
                 button(class="toggleButton", toggleTarget=suggestion.id+"updSuggestionbtn") Edit Suggestion
                 button(data-type="delete",class="suggestionDeleteButton", suggestionId=suggestion.id) Delete Suggestion
