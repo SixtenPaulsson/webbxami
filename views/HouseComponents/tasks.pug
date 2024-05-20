@@ -1,12 +1,11 @@
-
-if(user.worker==false)  
-    button(class="toggleButton", toggleTarget=house.id+"addTaskBtn") Add task
-    include taskIncludes/createTask.pug
-
-if(house.tasks)
+div(class="fieldCon")
     h1 List of tasks:
+    if(user.worker==false)  
+        button(class="toggleButton", toggleTarget=house.id+"addTaskBtn") Add task
+        include taskIncludes/createTask.pug
+if(house.tasks)
     each task in house.tasks
-        div(id=task.id)
+        div(id=task.id class="fieldCon")
             h2(id=task.id+":taskName")=task.taskName
             p(id=task.id+":taskProcent")=task.procent+"-100"
             button(class="toggleButton", toggleTarget=task.id+"updTaskbtn") Edit task
@@ -15,7 +14,6 @@ if(house.tasks)
             include taskIncludes/updTask.pug 
             include taskIncludes/createUserTask.pug 
             h3 Workers in task:
-         
             if(task.usertasks)
                 each usertask in task.usertasks
                     div(id=usertask.id)

@@ -29,13 +29,45 @@ input{
 .formContainer{
     width: 90%;
     margin:auto;
-    padding:2%;
 }
 header{
     min-height: 10vh;
     padding:3%;
-    border-bottom: 1px solid #808080;
+    border-bottom: 1px solid #909090;
 }
 .usertask{
     display: flex;
 }
+
+
+.fieldCon{
+    border-bottom: 2px solid #909090;
+    margin-bottom: 2%;
+    padding-bottom:2%;
+}
+
+
+
+
+@media only screen and (max-width: 600px) {
+    .formContainer{
+        width: 100%;
+        padding: 0%;
+        margin: 0%;
+        min-width: 100%;
+        display: block;
+    }
+    .houseCon{
+        margin: 1%;
+    }
+    html,body {
+        margin: 0;
+        padding: 0;
+    }
+    .controls{
+        display: block;
+    }
+    .controls *{
+        width: 100%;
+    }
+  }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 19, 2024 at 11:12 PM
+-- Generation Time: May 20, 2024 at 11:10 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -60,6 +60,7 @@ DELIMITER ;
 CREATE TABLE `suggestions` (
   `id` varchar(255) NOT NULL DEFAULT current_timestamp(),
   `text` varchar(255) NOT NULL,
+  `description` varchar(255) NOT NULL,
   `houseId` varchar(255) NOT NULL,
   `userId` varchar(255) NOT NULL,
   `date` timestamp NOT NULL DEFAULT current_timestamp()
@@ -124,6 +125,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `worker`, `name`, `password`) VALUES
+('5vvw0d2klwfdu9nk', 1, 'Worker2', '$2b$12$zl9eryt1A4l30ZlB6wXdk.LoMavAHI7aayHdbyYzj3/CBzyi4lIiS'),
 ('5vvw0mclwe0y2cy', 1, 'Worker', '$2b$12$6opTjK9JTmb1ftV1Zne2SOjhJl9DbnxpwiGB9vStyl.DDnfMjPpR6'),
 ('5vvw0mclwe0y95i', 0, 'User', '$2b$12$/6yGi9jEgEoomElEIVh8husZ8SzJQgiP/vG11C6Op2WZOcdOGTv7G');
 

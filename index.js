@@ -269,7 +269,8 @@ app.put('/tasks',auth,ownOrPartOf,async (req, res)=>{
 
 app.put('/suggestions',auth,ownOrPartOf,async (req, res)=>{
     let suggestion = [
-        {field:"text", value:req.body.text }
+        {field:"text", value:req.body.text },
+        {field:"description", value:req.body.description }
     ];
     try {
         let result = await db.update("suggestions",suggestion,req.body.id);
@@ -345,7 +346,7 @@ async function ownOrPartOf(req,res,next){
         if(object.length) object=object[0]
         if(req.session.user.worker==true){
             //Ifall det är ens egens objekt
-            if(object.userId==req.session.user.id) next();
+            if(object.userId==req.session.user.id) return next();
             //ifall det man försöker ändra är ett task
             if(object.usertasks){
                 if((object.usertasks.filter((x)=>x.user.id==req.session.user.id)).length>0) return next();
@@ -353,20 +354,28 @@ async function ownOrPartOf(req,res,next){
         }
         if(object.taskId){
             object = await db.tasks("id",object.taskId)
-            if(object.length!=1) return res.sendStatus(400)
+            if(object.length!=1) throw new Error("more than one task found")
             object = object[0]
         }
         if(object.houseId){
             object = await db.houses("id",object.houseId)
-            if(object.length!=1) return res.sendStatus(400)
+            if(object.length!=1) throw new Error("more than one house found")
             object = object[0]
         }
-
         if(object.ownerId==undefined && req.beforeOwner!=undefined) object.ownerId=req.beforeOwner
-        if(object.ownerId!=req.session.user.id) return res.sendStatus(403)
+        //Väldigt ful kod för post suggestions
+        if(req.session.user.worker==true){
+            if((object.userHouses.filter((x)=>x.user.id==req.session.user.id)).length>0){
+                if(req.route.path=='/suggestions' && req.route.methods['post']==true) return next();
+            }
+        }
+        if(object.ownerId!=req.session.user.id) throw new Error("You are not the owner")
+
+        
         return next();
         
     } catch (error) {
+        console.log(error)
         return res.sendStatus(403)
     }
 

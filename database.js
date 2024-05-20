@@ -31,7 +31,7 @@ function queryString(table,field=""){
         "users":["id","worker","name","password"],
         "usertask":["id","userId","taskId"],
         "userhouse":["id","userId","houseId"],
-        "suggestions":["id","text","houseId","userId","date"]
+        "suggestions":["id","text","houseId","userId","date","description"]
     }
     //Ifall inte tablet finns
     if(!(table in fields)) throw new Error("Table for query is not valid")
@@ -139,8 +139,8 @@ async function createTask(task){
     return await doQuery(sql,[uniqid(),task.taskName,task.houseId,task.procent]);
 }
 async function createSuggestion(suggestion){
-    const sql = "INSERT INTO suggestions (id, text, houseId, userId) VALUES (?, ?, ?, ?)"; 
-    return await doQuery(sql,[uniqid(), suggestion.text,suggestion.houseId,suggestion.userId]);
+    const sql = "INSERT INTO suggestions (id, text, description, houseId, userId) VALUES (?, ?, ?, ?, ?)"; 
+    return await doQuery(sql,[uniqid(),suggestion.text,suggestion.description,suggestion.houseId,suggestion.userId]);
 }
 async function createUser(user){
     const sql = "INSERT INTO users (id, worker, name, password) VALUES (?, ?, ?, ?)"; 
@@ -178,7 +178,7 @@ async function update(table,object=[],id){
         "houses":["ownerId","address","description","price"],
         "tasks":["taskName","procent"],
         "users":["worker","name","password"],
-        "suggestions":["text"]
+        "suggestions":["text","description"]
     }
     //Queryn ska bara kunna uppdatera de tables som finns
     if(tableFields[table]==undefined) throw new Error("Table is not valid")

@@ -207,8 +207,8 @@ async function updHouse(ev){
     });
     console.log(response)
     if(response.status==202){
-        if(updateinfo.address!="")document.getElementById(updateinfo.id+":houseAddress").innerText=updateinfo.address
-        if(updateinfo.description!="")document.getElementById(updateinfo.id+":houseDesc").innerText=updateinfo.description
+        if(updateinfo.address!="")document.getElementById(updateinfo.id+":houseAddress").innerText="Address: "+updateinfo.address
+        if(updateinfo.description!="")document.getElementById(updateinfo.id+":houseDesc").innerText="Description: "+updateinfo.description
         if(updateinfo.price!="")document.getElementById(updateinfo.id+":housePrice").innerText="Pris: "+updateinfo.price
     }
 } 
@@ -220,6 +220,7 @@ async function updSuggestion(ev){
     let updateinfo = {
         id:ev.target.getAttribute("suggestionId"),
         text:form.get("text"),
+        description:form.get("description"),
     }
     let response = await fetch("/suggestions",{
         method:"PUT",
@@ -228,6 +229,7 @@ async function updSuggestion(ev){
     });
     console.log(response)
     if(response.status==202){
-        if(updateinfo.text!="")document.getElementById(updateinfo.id+":suggestionText").innerText=updateinfo.text
+        if(updateinfo.text!="")document.getElementById(updateinfo.id+":suggestionText").innerText="Title: "+updateinfo.text
+        if(updateinfo.desc!="")document.getElementById(updateinfo.id+":suggestionDesc").innerText="Description: "+updateinfo.description
     }
 } 
