@@ -32,9 +32,7 @@ block content
                             if(house.tasks.length>0)
                                 h2 Tasks:
                     if(house.user)
-                    if(house.tasks)
-                        each task in house.tasks
-                            include includes/task.pug           
+                    include includes/task.pug           
                     if(house.suggestions)
                         if(house.suggestions.length)
                             if(house.suggestions.length>0)
