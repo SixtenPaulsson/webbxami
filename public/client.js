@@ -97,7 +97,6 @@ async function deletetask(ev){
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: taskId})
     });
-    console.log("hej")
     console.log(response)
     if(response.status==204){
         document.getElementById(taskId).remove()

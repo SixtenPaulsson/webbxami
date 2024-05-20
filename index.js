@@ -113,7 +113,7 @@ app.get('/users',auth,async (req, res)=>{
 });
 //#endregion
 //#region post
-app.post('/houses',auth,isUser,ownOrPartOf,async (req, res)=>{
+app.post('/houses',auth,isUser,getHouseId,ownOrPartOf,async (req, res)=>{
     try {
         house = req.body;
         house.ownerId=req.session.user.id
@@ -376,6 +376,10 @@ async function ownOrPartOf(req,res,next){
             if(object.length!=1) return res.sendStatus(400)
             object = object[0]
         }
+
+        if(object.ownerId==undefined && req.beforeOwner!=undefined) object.ownerId=req.beforeOwner
+        console.log(object.ownerId!=req.session.user.id)
+        console.log(object)
         if(object.ownerId!=req.session.user.id) return res.sendStatus(403)
         return next();
         
@@ -389,6 +393,12 @@ async function ownOrPartOf(req,res,next){
 function isUser(req,res,next){
     if(req.session.user.worker!=true) return next();
 }
+
+function getHouseId(req,res,next){
+    req.beforeOwner=req.session.user.id;
+    next()
+}
+
 
 
 //#endregion
