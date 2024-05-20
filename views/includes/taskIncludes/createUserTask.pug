@@ -1,0 +1,5 @@
+form(action="/usertasks", method="post" id=task.id+"addUserTaskbtn",  class="addUserTaskbtn toggleList")
+    input(type="text", name="name", placeholder="Name of worker", required)
+    input(type="hidden", name="taskId",value=task.id, required)
+    input(type="hidden", name="houseId",value=house.id, required)
+    input(type="submit", value = "Add user to house")
