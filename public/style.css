@@ -1,62 +1,41 @@
 *{
     box-sizing: border-box;
-}
-
-header{
-    min-height: 10vh;
-    padding:3%;
-    border-bottom: 1px solid #909090;
-}
-
-nav {
-    padding:3%;
-    border: 1px solid #909090;
-    display: flex;
-    gap: 2rem;
-}
-.usercon{
-    display: flex;
-}
-
-.formContainer{
-    width: 80%;
-    margin:auto;
-    padding:2%;
-}
-
-input{
-    width: 100%;
-    padding:1%;
-}
-
-.houseContainer img{
-    width: 100px;
-    display: block;
-    margin-right:20px;
-}
-
-.houseCon{
-    border: 1px solid #909090;
-}
-
-.taskCon{
-    border: 1px solid #909090;
-}
-.createform{
-    width: 100%;
-}
-
-.usertask{
-    display: flex;
-}
-
-
-.workerList{
-    width: 80%;
-    margin:auto;
-    padding:2%;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .toggleList{
     display: none;
+}
+.invis{
+    display: none;
+}
+.controls{
+    display: flex;
+}
+.controls *{
+    width: 100%;
+    min-height: 5vh;
+}
+input{
+    width: 100%;
+    padding:1%;
+}
+.houseCon{
+    border: 1px solid #909090;
+    min-height: 50vh;
+    background-color: #dddada;
+    margin: 1%;
+}
+.formContainer{
+    width: 90%;
+    margin:auto;
+    padding:2%;
+}
+header{
+    min-height: 10vh;
+    padding:3%;
+    border-bottom: 1px solid #808080;
+}
+.usertask{
+    display: flex;
 }

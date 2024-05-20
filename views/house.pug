@@ -1,0 +1,9 @@
+div(class = "houseCon", id=house.id)
+    div(class="controls")
+        include HouseComponents/controls.pug
+    div(class="HouseCompCon" id=house.id+":HouseInfoCon")
+        include HouseComponents/houseInfo.pug
+    div(class="HouseCompCon invis" id=house.id+":HouseTasksCon")
+        include HouseComponents/tasks.pug
+    div(class="HouseCompCon invis" id=house.id+":HouseSuggestionsCon")
+        include HouseComponents/Suggestions.pug

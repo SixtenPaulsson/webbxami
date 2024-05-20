@@ -1,0 +1,13 @@
+h1 List of houses:
+
+h2(id=house.id+":houseAddress")=house.address
+p(id=house.id+":houseDesc")=house.description
+if(house.price)
+    p(id=house.id+":housePrice")="Pris: "+house.price
+if(user.worker==false)
+    button(class="toggleButton", toggleTarget=house.id+"addUserHousebtn") Add user 
+    button(data-type="delete",class="deleteButton", houseid=house.id) Delete house
+    button(class="toggleButton", toggleTarget=house.id+"updHousebtn") Edit house  
+    include houseInfoComponents/updHouse.pug             
+    include houseInfoComponents/createUserHouse.pug
+include houseInfoComponents/userHouses.pug

@@ -1,7 +1,13 @@
+
+if(user.worker==false)  
+    button(class="toggleButton", toggleTarget=house.id+"addTaskBtn") Add task
+    include taskIncludes/createTask.pug
+
 if(house.tasks)
+    h1 List of tasks:
     each task in house.tasks
         div(id=task.id)
-            h4(id=task.id+":taskName")=task.taskName
+            h2(id=task.id+":taskName")=task.taskName
             p(id=task.id+":taskProcent")=task.procent+"-100"
             button(class="toggleButton", toggleTarget=task.id+"updTaskbtn") Edit task
             button(data-type="delete",class="taskDeleteButton", taskId=task.id) Delete task
@@ -16,3 +22,7 @@ if(house.tasks)
                         if(usertask.user) 
                             p=usertask.user.name
                         button(data-type="delete",class="userTaskDeleteButton", userTaskId=usertask.id) Delete user from task
+    if workers
+        h4 Workers som man kan lägga till i tasks
+        each worker in workers
+            p=worker.name

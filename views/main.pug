@@ -1,0 +1,39 @@
+doctype html
+html 
+    head 
+        link(href="style.css", rel="stylesheet")
+        script(src="client.js" defer) 
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        meta(charset="utf-8")
+        if title
+            title=title 
+        else 
+            title Default title from pug...
+
+    body 
+        header
+            h1 WEBBXAMI
+            if(user)
+                div(class="controls")
+                    if(user.worker==false)
+                        button(class="toggleButton", toggleTarget="housePost") Add House
+                        button(class="toggleButton", toggleTarget="addUserForm") Add user
+                    form(action="/logout", method="post")
+                        input(type="submit", value = "logout") 
+                include includes/createHouse.pug
+                include includes/createUser.pug
+                  
+                p="inloggad"
+                p=user.name
+        main 
+            if(user==undefined)
+                div(class="usercon")
+                    include includes/login.pug
+            if(user)
+
+
+            if(user) 
+                if houses
+                    div(class = "formContainer") 
+                        each house in houses
+                            include house.pug

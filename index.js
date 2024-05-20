@@ -34,9 +34,7 @@ app.get("/",async (req, res)=>{
     try {
         let houses = await db.mainData(req.session.user);
         const workers = await db.users("worker",1);
-        //console.log(houses)
-        
-        res.render("houses",{title:"Houses",user:req.session.user,houses,workers});
+        res.render("main",{title:"Houses",user:req.session.user,houses,workers});
     } catch (error) {
         return res.render("error",{error:error})
     }
@@ -44,15 +42,7 @@ app.get("/",async (req, res)=>{
 //#region get
 
 
-//Lite debug route, ska ej finnas
-//Inuti routen kan man skapa nya användare men det här ska inte finnas egentligen
-app.get("/admin",async (req, res)=>{
-    try {
-        res.render("admin");       
-    } catch (error){
-        return res.render("error",{error:error})
-    }
-});
+
 
 
 app.get("/houses",async (req, res)=>{
@@ -150,12 +140,9 @@ app.post('/users',auth,isUser,async (req, res)=>{
     try {
         user=req.body
         user.password = await bcrypt.hash(user.password,12);    
-        user.worker = req.body.worker == "on" ? true : false;
-        console.log(process.env.secret);
+        user.worker = true
         await db.createUser(user)
         return res.redirect("/");
-        //return res.status(201).location('/')
-        //return res.redirect("/") 
     } catch (error) {
         return res.render("error",{error:error});
     }
@@ -350,7 +337,6 @@ async function log(req,res,next){
 
 async function ownOrPartOf(req,res,next){
     try {
-        console.log(req.session.user)
         //Försöker hämta ut det objekt man ska ändra på ta bort
         let object = await db.getObjectFromId(req.body.id)
         //Ifall det inte finns är det en post istället
@@ -360,7 +346,6 @@ async function ownOrPartOf(req,res,next){
         if(req.session.user.worker==true){
             //Ifall det är ens egens objekt
             if(object.userId==req.session.user.id) next();
-
             //ifall det man försöker ändra är ett task
             if(object.usertasks){
                 if((object.usertasks.filter((x)=>x.user.id==req.session.user.id)).length>0) return next();
@@ -378,13 +363,10 @@ async function ownOrPartOf(req,res,next){
         }
 
         if(object.ownerId==undefined && req.beforeOwner!=undefined) object.ownerId=req.beforeOwner
-        console.log(object.ownerId!=req.session.user.id)
-        console.log(object)
         if(object.ownerId!=req.session.user.id) return res.sendStatus(403)
         return next();
         
     } catch (error) {
-        console.log(error)
         return res.sendStatus(403)
     }
 
@@ -399,6 +381,32 @@ function getHouseId(req,res,next){
     next()
 }
 
+
+
+
+
+
+
+//Debug routes för att skapa user, ska ej finnas egentligen
+app.get("/admin",async (req, res)=>{
+    try {
+        res.render("admin");       
+    } catch (error){
+        return res.render("error",{error:error})
+    }
+});
+//Debug routes för att skapa user, ska ej finnas egentligen
+app.post('/admin',auth,isUser,async (req, res)=>{
+    try {
+        user=req.body
+        user.password = await bcrypt.hash(user.password,12);    
+        user.worker = false
+        await db.createUser(user)
+        return res.redirect("/");
+    } catch (error) {
+        return res.render("error",{error:error});
+    }
+});
 
 
 //#endregion

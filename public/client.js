@@ -51,6 +51,27 @@ function toggleButton(ev){
 }
 
 
+visBtn = document.querySelectorAll('.visButton')
+if(visBtn) visBtn.forEach(function(knapp){
+    knapp.addEventListener("click",visToggle)
+})
+function visToggle(ev){
+    ev.preventDefault();
+    console.log("asdasd")
+    ToggleName = ev.target.getAttribute("toggleTarget")
+    houseId = ev.target.getAttribute("houseId")
+    form1=document.getElementById(houseId+":HouseInfoCon")
+    form2=document.getElementById(houseId+":HouseTasksCon")
+    form3=document.getElementById(houseId+":HouseSuggestionsCon")
+
+    form1.style.display = ToggleName == ":HouseInfoCon" ? "block" : "none";
+    form2.style.display = ToggleName == ":HouseTasksCon" ? "block" : "none";
+    form3.style.display = ToggleName == ":HouseSuggestionsCon" ? "block" : "none"; 
+}
+
+
+
+
 
 
 async function deletehouse(ev){

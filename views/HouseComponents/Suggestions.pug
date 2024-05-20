@@ -1,0 +1,18 @@
+h2 Suggestions:
+
+button(class="toggleButton", toggleTarget=house.id+"addSuggestionBtn") Add Suggestion
+include suggestionIncludes/createSuggestion.pug
+
+if(house.suggestions)
+        if(house.suggestions.length)
+            if(house.suggestions.length>0)
+                h2 Suggestions:
+        each suggestion in house.suggestions 
+            div(class = "taskCon" id=suggestion.id)
+                p(id=suggestion.id+":suggestionText")=suggestion.text
+                p=suggestion.date
+                p="Skrivet av: "+user.name
+                if(house.ownerId==user.id || suggestion.userId==user.id)
+                button(class="toggleButton", toggleTarget=suggestion.id+"updSuggestionbtn") Edit Suggestion
+                button(data-type="delete",class="suggestionDeleteButton", suggestionId=suggestion.id) Delete Suggestion
+                include suggestionIncludes/updSuggestion.pug
