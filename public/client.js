@@ -155,6 +155,7 @@ async function updTask(ev){
         procent:form.get("procent"),
         taskName:form.get("taskName")
     }
+    if(updateinfo.procent>100) updateinfo.procent=100
     let response = await fetch("/tasks",{
         method:"PUT",
         headers: { 'Content-Type': 'application/json' },

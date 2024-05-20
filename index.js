@@ -30,11 +30,12 @@ app.listen(3456, err=> {
     console.log("http://localhost:3456");   
 });
 
-app.get("/",async (req, res)=>{
+app.get("/",log,async (req, res)=>{
     try {
         let houses = await db.mainData(req.session.user);
         const workers = await db.users("worker",1);
-        console.log(houses)
+        //console.log(houses)
+        
         res.render("houses",{title:"Houses",user:req.session.user,houses,workers});
     } catch (error) {
         return res.render("error",{error:error})
@@ -113,7 +114,6 @@ app.post('/houses',auth,async (req, res)=>{
     try {
         house = req.body;
         house.ownerId=req.session.user.id
-        console.log(house)
         await db.createHouse(house);
         return res.redirect("/");       
     } catch (error) {
@@ -134,9 +134,7 @@ app.post('/tasks',async (req, res)=>{
 
 app.post('/suggestions',async (req, res)=>{    
     suggestion = req.body
-    
     suggestion.userId = req.session.user.id
-    console.log(suggestion)
     try {
         let result = await db.createSuggestion(suggestion);
         return res.redirect("/")
@@ -151,7 +149,6 @@ app.post('/users',async (req, res)=>{
         user.password = await bcrypt.hash(user.password,12);    
         user.worker = req.body.worker == "on" ? true : false;
         console.log(process.env.secret);
-        console.log(user)
         await db.createUser(user)
         return res.redirect("/");
         //return res.status(201).location('/')
@@ -249,7 +246,7 @@ app.delete('/userhouses',async (req, res)=>{
 //#region put
 
 //#endregion
-app.put("/houses",async (req, res)=>{
+app.put("/houses",log,async (req, res)=>{
     let house = [
         { field:"address", value:req.body.address },
         { field:"description", value:req.body.description },
@@ -272,11 +269,9 @@ app.put('/tasks',async (req, res)=>{
     ];
     try {
         let result = await db.update("tasks",task,req.body.id);
-        console.log(result)
         return res.sendStatus(202)
         //return res.json(result)
     } catch (error) {
-        console.log(error)
         return res.sendStatus(400)
         //return res.render("error",{error:error})
     }
@@ -288,17 +283,15 @@ app.put('/suggestions',async (req, res)=>{
     ];
     try {
         let result = await db.update("suggestions",suggestion,req.body.id);
-        console.log(result)
         return res.sendStatus(202)
         //return res.json(result)
     } catch (error) {
-        console.log(error)
         return res.sendStatus(400)
         //return res.render("error",{error:error})
     }
 });
 
-app.put('/users',async (req, res)=>{
+/* app.put('/users',async (req, res)=>{
     user = [
         { field:"name",value:req.body.name},
         { field:"password",value:req.body.password}
@@ -309,7 +302,7 @@ app.put('/users',async (req, res)=>{
     } catch (error) {
         return res.render("error",{error:error});
     }
-});
+}); */
 
 
 //#region auth
@@ -347,15 +340,17 @@ function auth(req,res,next){
     next();
 }
 
+async function log(req,res,next){
+    if(req.body.id) console.log(await db.getObjectFromId(req.body.id))
+    next()
+}
 
-
-function owns(){
-
+function owns(req,res,next){
     next();
 }
 
-function isPartOf(){
-
+function isPartOf(req,res,next){
+    if(req.body.ownerId == req.session.user.id) next();
 }
 
 

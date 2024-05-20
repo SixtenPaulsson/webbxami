@@ -1,11 +1,18 @@
 if(house.tasks)
-    each task in house.tasks 
-        p=task.taskName
+    each task in house.tasks
+        h4(id=task.id+":taskName")=task.taskName
+        p(id=task.id+":taskProcent")=task.procent+"-100"
+        button(class="toggleButton", toggleTarget=task.id+"updTaskbtn") Edit task
+        button(data-type="delete",class="taskDeleteButton", taskId=task.id) Delete task
         button(class="toggleButton", toggleTarget=task.id+"addUserTaskbtn") Add user
-        include taskIncludes/createUserTask.pug
+        include taskIncludes/updTask.pug 
+        include taskIncludes/createUserTask.pug 
+        h3 Workers in task:
+       
+         
         if(task.usertasks)
-            h3 Workers in task:
             each usertask in task.usertasks
-                if(usertask.user)
-                    each user in usertask.user 
-                        p=user.name
+                div(id=usertask.id)
+                    if(usertask.user) 
+                        p=usertask.user.name
+                    button(data-type="delete",class="userTaskDeleteButton", userTaskId=usertask.id) Delete user from task

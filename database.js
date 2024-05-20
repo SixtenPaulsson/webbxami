@@ -50,16 +50,18 @@ async function mainData(user={id:"",worker:false}){
         const data = await houses("ownerId",user.id)
         return data
     }
-    const data2 = await doQuery("select * from houses where id = (SELECT houseId from userhouse WHERE userId = ?)",[user.id]);
-    //console.log("asdasd")
+    getObjectFromId('xe88aj8lweogogn')
+    const data = await doQuery("select * from houses where id = (SELECT houseId from userhouse WHERE userId = ?)",[user.id]);
+    //console.log(data[0])
     //Denna loopen kanske verkar vara helt redundant men här hämtas även tasks och sånt
-    for(var i = 0; i < data2[0].length; i++){ 
-        data2[0][i]=await houses("id",data2[0][i].id)
+    for(var i = 0; i < data[0].length; i++){ 
+        const house = await houses("id",data[0][i].id)
+        data[0][i] = house[0]
+        data[0][i].tasks = data[0][i].tasks.filter((x)=>x.usertasks.filter((y)=>y.userId==user.id).length>0);
     }
-    //console.log(data2[0])
     
-    return data2[0]
-    
+
+    return data[0]
 }
 
 
@@ -110,14 +112,16 @@ async function users(field="",value=""){
 async function userTasks(field="",value=""){
     const data = await doQuery(queryString("usertask",field),[value]);
     for(var i = 0; i < data[0].length; i++){
-        data[0][i].user = await users("id", data[0][i].userId)
+        const user =await users("id", data[0][i].userId)
+        if(user.length==0) data[0][i].user = user[0]
     }
     return data[0]; 
 }
 async function userHouse(field="",value=""){
     const data = await doQuery(queryString("userhouse",field),[value]);
     for(var i = 0; i < data[0].length; i++){
-        data[0][i].user = await users("id", data[0][i].userId)
+        const user =await users("id", data[0][i].userId)
+        if(user.length==0) data[0][i].user = user[0]
     }
     return data[0]; 
 }
@@ -135,8 +139,8 @@ async function createTask(task){
     return await doQuery(sql,[uniqid(),task.taskName,task.houseId,task.procent]);
 }
 async function createSuggestion(suggestion){
-    const sql = "INSERT INTO suggestions (id, text, houseId, userId, date) VALUES (?, ?, ?, ?, ?)"; 
-    return await doQuery(sql,[uniqid(), suggestion.text,suggestion.houseId,suggestion.userId,suggestion.date]);
+    const sql = "INSERT INTO suggestions (id, text, houseId, userId) VALUES (?, ?, ?, ?)"; 
+    return await doQuery(sql,[uniqid(), suggestion.text,suggestion.houseId,suggestion.userId]);
 }
 async function createUser(user){
     const sql = "INSERT INTO users (id, worker, name, password) VALUES (?, ?, ?, ?)"; 
@@ -147,9 +151,7 @@ async function createUserTask(userTask){
     if(prev[0].length!=0) throw new Error("Personen är redan med")
     const sql = "INSERT INTO usertask (userId, taskId, id) VALUES (?, ?, ?)"; 
     let result = await doQuery(sql,[userTask.userId, userTask.taskId, uniqid()]);
-    if(await userHouse("userId",userTask.userId).length!=[0]) await createUserHouse(userTask)
-
-
+    if(await userHouse("userId",userTask.userId).length==[0]) await createUserHouse(userTask)
     return result
 }
 
@@ -209,6 +211,54 @@ async function remove(table, id){
     const sql = "DELETE FROM "+table+" WHERE id = ?";
     return await doQuery(sql,[id]); 
 }
+
+//Riktig fullösning för att få ut ett objekt från ett id
+async function getObjectFromId(id)
+{
+    let obj=await houses("id",id)
+    if(obj.length>0) return obj
+    obj=await tasks("id",id)
+    if(obj.length>0) return obj
+    obj=await userHouse("id",id)
+    if(obj.length>0) return obj
+    obj=await userTasks("id",id)
+    if(obj.length>0) return obj
+    obj=await suggestions("id",id)
+    if(obj.length>0) return obj
+}
+
+
+async function ownOrPartOf(id,user={worker:"",id:""}){
+    if(user.worker="") throw new Error("Declare if worker or not")
+    if(object.taskId){
+        object = await tasks("id",object.taskId)
+        if(object.length!=1) throw new Error("No house with that id")
+        object = object[0]
+    }
+    if(object.houseId){
+        object = await houses("id",object.houseId)
+        if(object.length!=1) throw new Error("No house with that id")
+            object = object[0]
+    }
+    return (object.ownerId==user.id)
+
+}
+
+async function isPartOf(id,user={worker:"",id:""}){
+    let object = await getObjectFromId(id)
+    if(object.userId){
+        return object.userId == user.id
+    }
+    if(object.userTasks){
+        for (var i = 0; i < object.userTasks.length; i++){
+            if(object.userTasks[i].user.id==user.id) return true
+        }
+        return false
+    }
+}
+
+
+
 //Exporterar
 module.exports = {createHouse,houses,
                   createTask, tasks,
@@ -216,4 +266,4 @@ module.exports = {createHouse,houses,
                   createSuggestion,suggestions,
                   createUserTask,userTasks,
                   createUserHouse,userHouse,
-                  mainData,update,remove};
+                  mainData,update,remove,getObjectFromId};
