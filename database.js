@@ -52,7 +52,6 @@ async function mainData(user={id:"",worker:false}){
     }
     getObjectFromId('xe88aj8lweogogn')
     const data = await doQuery("select * from houses where id = (SELECT houseId from userhouse WHERE userId = ?)",[user.id]);
-    //console.log(data[0])
     //Denna loopen kanske verkar vara helt redundant men här hämtas även tasks och sånt
     for(var i = 0; i < data[0].length; i++){ 
         const house = await houses("id",data[0][i].id)
@@ -113,7 +112,7 @@ async function userTasks(field="",value=""){
     const data = await doQuery(queryString("usertask",field),[value]);
     for(var i = 0; i < data[0].length; i++){
         const user =await users("id", data[0][i].userId)
-        if(user.length==0) data[0][i].user = user[0]
+        if(user.length==1) data[0][i].user = user[0]
     }
     return data[0]; 
 }
@@ -121,8 +120,9 @@ async function userHouse(field="",value=""){
     const data = await doQuery(queryString("userhouse",field),[value]);
     for(var i = 0; i < data[0].length; i++){
         const user =await users("id", data[0][i].userId)
-        if(user.length==0) data[0][i].user = user[0]
+        if(user.length==1) data[0][i].user = user[0]
     }
+    
     return data[0]; 
 }
 //#endregion
@@ -148,19 +148,19 @@ async function createUser(user){
 }
 async function createUserTask(userTask){
     const prev = await doQuery("select * from usertask where userId= ? AND taskId= ?",[userTask.userId,userTask.taskId])
-    if(prev[0].length!=0) throw new Error("Personen är redan med")
+    if(prev[0].length!=0) throw new Error("Personen är redan med i tasket")
     const sql = "INSERT INTO usertask (userId, taskId, id) VALUES (?, ?, ?)"; 
     let result = await doQuery(sql,[userTask.userId, userTask.taskId, uniqid()]);
-    if(await userHouse("userId",userTask.userId).length==[0]) await createUserHouse(userTask)
+    if((await userHouse("userId",userTask.userId)).length==0) await createUserHouse(userTask)
     return result
 }
 
 async function createUserHouse(userHouse){
     const prev = await doQuery("select * from userhouse where userId= ? AND houseId= ?",[userHouse.userId,userHouse.houseId])
-    if(prev[0].length!=0) throw new Error("Personen är redan med")
-    const sql = "INSERT INTO userhouse (userId, houseId, id) VALUES (?, ?, ?)"; 
+    if(prev[0].length!=0) throw new Error("Personen är redan med i huset")
+    const sql = "INSERT INTO userhouse (userId, houseId, id) VALUES (?, ?, ?)";
     return await doQuery(sql,[userHouse.userId, userHouse.houseId, uniqid()]);
-}
+}   
 //#endregion
 //Väldigt flexibel update funktion
 async function update(table,object=[],id){
@@ -227,22 +227,6 @@ async function getObjectFromId(id)
     if(obj.length>0) return obj
 }
 
-
-async function ownOrPartOf(id,user={worker:"",id:""}){
-    if(user.worker="") throw new Error("Declare if worker or not")
-    if(object.taskId){
-        object = await tasks("id",object.taskId)
-        if(object.length!=1) throw new Error("No house with that id")
-        object = object[0]
-    }
-    if(object.houseId){
-        object = await houses("id",object.houseId)
-        if(object.length!=1) throw new Error("No house with that id")
-            object = object[0]
-    }
-    return (object.ownerId==user.id)
-
-}
 
 async function isPartOf(id,user={worker:"",id:""}){
     let object = await getObjectFromId(id)

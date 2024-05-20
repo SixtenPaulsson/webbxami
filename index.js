@@ -30,7 +30,7 @@ app.listen(3456, err=> {
     console.log("http://localhost:3456");   
 });
 
-app.get("/",log,async (req, res)=>{
+app.get("/",async (req, res)=>{
     try {
         let houses = await db.mainData(req.session.user);
         const workers = await db.users("worker",1);
@@ -43,6 +43,9 @@ app.get("/",log,async (req, res)=>{
 });      
 //#region get
 
+
+//Lite debug route, ska ej finnas
+//Inuti routen kan man skapa nya användare men det här ska inte finnas egentligen
 app.get("/admin",async (req, res)=>{
     try {
         res.render("admin");       
@@ -64,7 +67,7 @@ app.get("/houses",async (req, res)=>{
 
 
 
-app.get("/tasks",async (req, res)=>{
+app.get("/tasks",auth,async (req, res)=>{
     try {
         let result = await db.tasks();
         return res.json(result)
@@ -73,7 +76,7 @@ app.get("/tasks",async (req, res)=>{
     }
 });
 
-app.get("/suggestions",async (req, res)=>{
+app.get("/suggestions",auth,async (req, res)=>{
     try {
         let result = await db.suggestions();
         return res.json(result)
@@ -82,7 +85,7 @@ app.get("/suggestions",async (req, res)=>{
     }
 });
 
-app.get('/usertasks',async (req, res)=>{
+app.get('/usertasks',auth,async (req, res)=>{
     try {
         let result = await db.userTasks();
         return res.json(result)
@@ -91,7 +94,7 @@ app.get('/usertasks',async (req, res)=>{
     }
 });
 
-app.get('/userhouses',async (req, res)=>{
+app.get('/userhouses',auth,async (req, res)=>{
     try {
         let result = await db.userHouse();
         return res.json(result)
@@ -100,7 +103,7 @@ app.get('/userhouses',async (req, res)=>{
     }
 });
 
-app.get('/users',async (req, res)=>{
+app.get('/users',auth,async (req, res)=>{
     try {
         let result = await db.users();
         return res.json(result)
@@ -110,7 +113,7 @@ app.get('/users',async (req, res)=>{
 });
 //#endregion
 //#region post
-app.post('/houses',auth,async (req, res)=>{
+app.post('/houses',auth,isUser,ownOrPartOf,async (req, res)=>{
     try {
         house = req.body;
         house.ownerId=req.session.user.id
@@ -120,7 +123,7 @@ app.post('/houses',auth,async (req, res)=>{
         res.render("error",{error:error})
     }
 });
-app.post('/tasks',async (req, res)=>{
+app.post('/tasks',auth,isUser,ownOrPartOf,async (req, res)=>{
     
     task = req.body
     if(task.procent>100) task.procent=100
@@ -132,7 +135,7 @@ app.post('/tasks',async (req, res)=>{
     }
 });
 
-app.post('/suggestions',async (req, res)=>{    
+app.post('/suggestions',auth,ownOrPartOf,async (req, res)=>{    
     suggestion = req.body
     suggestion.userId = req.session.user.id
     try {
@@ -143,7 +146,7 @@ app.post('/suggestions',async (req, res)=>{
     }
 });
 
-app.post('/users',async (req, res)=>{
+app.post('/users',auth,isUser,async (req, res)=>{
     try {
         user=req.body
         user.password = await bcrypt.hash(user.password,12);    
@@ -157,7 +160,7 @@ app.post('/users',async (req, res)=>{
         return res.render("error",{error:error});
     }
 });
-app.post('/usertasks',auth,async (req, res)=>{
+app.post('/usertasks',auth,isUser,ownOrPartOf,async (req, res)=>{
     try {
         userName=await db.users("name",req.body.name)
         if (userName.length==0) return res.render("error",{error:{message:"Ingen user hittad"}})
@@ -171,7 +174,7 @@ app.post('/usertasks',auth,async (req, res)=>{
     }
 });
 
-app.post('/userhouses',auth,async (req, res)=>{
+app.post('/userhouses',auth,isUser,ownOrPartOf,async (req, res)=>{
     try {
         userName=await db.users("name",req.body.name)
         if (userName.length==0) return res.render("error",{error:{message:"Ingen user hittad"}})
@@ -188,7 +191,7 @@ app.post('/userhouses',auth,async (req, res)=>{
 //#endregion
 
 //#region delete
-app.delete('/houses',async (req, res)=>{
+app.delete('/houses',auth,isUser,ownOrPartOf,async (req, res)=>{
     try {
         let result = await db.remove("houses",req.body.id);
         return res.sendStatus(204)
@@ -196,7 +199,7 @@ app.delete('/houses',async (req, res)=>{
         return res.render("error",{error:error});
     }
 });
-app.delete('/tasks',async (req, res)=>{
+app.delete('/tasks',auth,isUser,ownOrPartOf,async (req, res)=>{
     try {
         let result = await db.remove("tasks",req.body.id);
 
@@ -206,7 +209,7 @@ app.delete('/tasks',async (req, res)=>{
     }
 });
 
-app.delete('/suggestions',async (req, res)=>{
+app.delete('/suggestions',auth,ownOrPartOf,async (req, res)=>{
     try {
         let result = await db.remove("suggestions",req.body.id);
         return res.sendStatus(204)
@@ -224,7 +227,7 @@ app.delete('/users',async (req, res)=>{
         return res.render("error",{error:error})
     }
 });
-app.delete('/usertasks',async (req, res)=>{
+app.delete('/usertasks',auth,ownOrPartOf,async (req, res)=>{
     try {
         let result = await db.remove("userTask",req.body.id);
         return res.sendStatus(204)
@@ -232,7 +235,7 @@ app.delete('/usertasks',async (req, res)=>{
         return res.render("error",{error:error})
 }});
 
-app.delete('/userhouses',async (req, res)=>{
+app.delete('/userhouses',auth,ownOrPartOf,async (req, res)=>{
     try {
         let result = await db.remove("userHouse",req.body.id);
         return res.sendStatus(204)
@@ -246,7 +249,7 @@ app.delete('/userhouses',async (req, res)=>{
 //#region put
 
 //#endregion
-app.put("/houses",log,async (req, res)=>{
+app.put("/houses",auth,isUser,ownOrPartOf,async (req, res)=>{
     let house = [
         { field:"address", value:req.body.address },
         { field:"description", value:req.body.description },
@@ -260,7 +263,7 @@ app.put("/houses",log,async (req, res)=>{
     }
 });
 
-app.put('/tasks',async (req, res)=>{
+app.put('/tasks',auth,ownOrPartOf,async (req, res)=>{
     procent=req.body.procent
     if(procent>100) procent=100
     let task = [
@@ -277,7 +280,7 @@ app.put('/tasks',async (req, res)=>{
     }
 });
 
-app.put('/suggestions',async (req, res)=>{
+app.put('/suggestions',auth,ownOrPartOf,async (req, res)=>{
     let suggestion = [
         {field:"text", value:req.body.text }
     ];
@@ -345,12 +348,46 @@ async function log(req,res,next){
     next()
 }
 
-function owns(req,res,next){
-    next();
+async function ownOrPartOf(req,res,next){
+    try {
+        console.log(req.session.user)
+        //Försöker hämta ut det objekt man ska ändra på ta bort
+        let object = await db.getObjectFromId(req.body.id)
+        //Ifall det inte finns är det en post istället
+        if(object == undefined) object=req.body
+        //objectet ska vara första objektet
+        if(object.length) object=object[0]
+        if(req.session.user.worker==true){
+            //Ifall det är ens egens objekt
+            if(object.userId==req.session.user.id) next();
+
+            //ifall det man försöker ändra är ett task
+            if(object.usertasks){
+                if((object.usertasks.filter((x)=>x.user.id==req.session.user.id)).length>0) return next();
+            }
+        }
+        if(object.taskId){
+            object = await db.tasks("id",object.taskId)
+            if(object.length!=1) return res.sendStatus(400)
+            object = object[0]
+        }
+        if(object.houseId){
+            object = await db.houses("id",object.houseId)
+            if(object.length!=1) return res.sendStatus(400)
+            object = object[0]
+        }
+        if(object.ownerId!=req.session.user.id) return res.sendStatus(403)
+        return next();
+        
+    } catch (error) {
+        console.log(error)
+        return res.sendStatus(403)
+    }
+
 }
 
-function isPartOf(req,res,next){
-    if(req.body.ownerId == req.session.user.id) next();
+function isUser(req,res,next){
+    if(req.session.user.worker!=true) return next();
 }
 
 

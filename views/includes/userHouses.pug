@@ -1,4 +1,6 @@
 if(house.userHouses)
     each userHouse in house.userHouses
-        if(userHouse.user)
-            p=userHouse.user.name
+        div(id=userHouse.id)
+            if(userHouse.user)
+                p=userHouse.user.name
+            button(data-type="delete",class="userHouseDeleteButton", userHouseId=userHouse.id) Delete user from house
