@@ -22,5 +22,7 @@ if(house.tasks)
                         button(data-type="delete",class="userTaskDeleteButton", userTaskId=usertask.id) Delete user from task
     if workers
         h4 Workers som man kan lägga till i tasks
-        each worker in workers
-            p=worker.name
+        button(class="toggleButton", toggleTarget=house.id+"showWorkerbtn") Show workers
+        div(id=house.id+"showWorkerbtn",  class="toggleList")
+            each worker in workers
+                p=worker.name
