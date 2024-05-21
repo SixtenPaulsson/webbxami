@@ -18,11 +18,16 @@ html
                     if(user.worker==false)
                         button(class="toggleButton", toggleTarget="housePost") Add House
                         button(class="toggleButton", toggleTarget="addWorkerForm") Add worker
+                        button(class="toggleButton", toggleTarget="addUserForm") Add user
                     form(action="/logout", method="post")
                         input(type="submit", value = "logout") 
                 include includes/createHouse.pug
                 include includes/createWorker.pug
-                  
+                form(action="/users", method="post" id="addUserForm" class="toggleList")
+                    input(type="text", name="name", placeholder="name",required)
+                    input(type="hidden",name="user",value="true")
+                    input(type="password", name="password", placeholder="Lösenord" required)
+                    input(type="submit", value = "Create Worker")  
                 p="inloggad"
                 p=user.name
         main 

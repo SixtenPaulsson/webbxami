@@ -111,7 +111,7 @@ app.post('/users',auth,isUser,async (req, res)=>{
     try {
         user=req.body
         user.password = await bcrypt.hash(user.password,12);    
-        user.worker = true
+        user.worker = req.body.user != "true"
         await db.createUser(user)
         return res.redirect("/");
     } catch (error) {
@@ -353,18 +353,15 @@ async function ownOrPartOf(req,res,next){
 }
 
 async function created(req,res,next){
-    console.log("hej2")
     const object = await db.getObjectFromId(req.body.id)
     if(object.userId==req.session.user.id || req.session.user.worker==false) return next();
 }
 
 async function ownOrPartOf(req,res,next){
     try {
-        console.log("hej1")
         let object = await db.getObjectFromId(req.body.id)
         if(object==undefined) object = req.body
         const house = await db.getHouse(object)
-        if(house.ownerId==req.session.user.id)
         if(req.session.user.worker==false && house.ownerId!=req.session.user.id) throw new Error("You do not own the object")
         if(!(house.workerHouses.find((x)=>x.user.id==req.session.user.id)) && req.session.user.worker==true) throw new Error("You aren't part of the house");
         return next();
