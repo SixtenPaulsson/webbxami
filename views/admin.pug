@@ -1,7 +1,5 @@
 button(class="toggleButton", toggleTarget="addUserForm") Add user
-form(action="/users", method="post" class="addUserForm toggleList")
+form(action="/admin", method="post" class="addUserForm toggleList")
     input(type="text", name="name", placeholder="name",required)
     input(type="password", name="password", placeholder="Lösenord" required)
-    p Worker eller användare (ha på för worker)
-    input(type="checkbox", name="worker", placeholder="Lösenord",class="checkbox")
     input(type="submit", value = "Create user")  

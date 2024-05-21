@@ -17,7 +17,7 @@ const pool = mysql.createPool({
 //Select * from houses where asd = ?
 //con quert("Select * from houses"" , 2)
 async function doQuery(query,queryBind=[]){
-    let data = await pool.query(query,queryBind);
+    const data = await pool.query(query,queryBind);
     //När ett fel uppstår så kommer det finnas med ett sqlmeddelande i objektet
     if(data.sqlMessage) throw data
     return data;
@@ -160,7 +160,7 @@ async function createUserHouse(userHouse){
     if(prev[0].length!=0) throw new Error("Personen är redan med i huset")
     const sql = "INSERT INTO userhouse (userId, houseId, id) VALUES (?, ?, ?)";
     return await doQuery(sql,[userHouse.userId, userHouse.houseId, uniqid()]);
-}   
+}
 //#endregion
 //Väldigt flexibel update funktion
 async function update(table,object=[],id){
@@ -174,7 +174,7 @@ async function update(table,object=[],id){
     //]
     
     //Dictinary/array över alla acceptabla värden, man ska inte kunna ändra id
-    tableFields = {
+    const tableFields = {
         "houses":["ownerId","address","description","price"],
         "tasks":["taskName","procent"],
         "users":["worker","name","password"],
@@ -206,13 +206,14 @@ async function update(table,object=[],id){
 //Flexibel delete funktion, tar bort från en viss tabell där id't är lika med något
 //Borde heta delete men javascript är jobbigt
 async function remove(table, id){
-    validTables = ["houses","tasks","users","userTask","userHouse","suggestions"]    
+    const validTables = ["houses","tasks","users","userTask","userHouse","suggestions"]    
     if(!validTables.includes(table)) throw new Error("Not valid table");
     const sql = "DELETE FROM "+table+" WHERE id = ?";
     return await doQuery(sql,[id]); 
 }
 
 //Riktig fullösning för att få ut ett objekt från ett id
+//Ska vara typ som en (select * from allTables where id = ?) men det funkade inte
 async function getObjectFromId(id)
 {
     let obj=await houses("id",id)
@@ -228,8 +229,8 @@ async function getObjectFromId(id)
 }
 
 
-async function isPartOf(id,user={worker:"",id:""}){
-    let object = await getObjectFromId(id)
+/* async function isPartOf(id,user={worker:"",id:""}){
+    const object = await getObjectFromId(id)
     if(object.userId){
         return object.userId == user.id
     }
@@ -239,7 +240,7 @@ async function isPartOf(id,user={worker:"",id:""}){
         }
         return false
     }
-}
+} */
 
 
 
