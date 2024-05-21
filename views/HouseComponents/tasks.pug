@@ -6,8 +6,8 @@ div(class="fieldCon")
 if(house.tasks)
     each task in house.tasks
         div(id=task.id class="fieldCon")
-            h2(id=task.id+":taskName")=task.taskName
-            p(id=task.id+":taskProcent")=task.procent+"-100"
+            h2(id=task.id+":taskName")="Title: "+task.taskName
+            p(id=task.id+":taskProcent")="Task status: "+task.procent
             button(class="toggleButton", toggleTarget=task.id+"updTaskbtn") Edit task
             if(user.worker==false)
                 button(data-type="delete",class="taskDeleteButton", taskId=task.id) Delete task

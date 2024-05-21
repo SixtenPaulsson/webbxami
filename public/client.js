@@ -211,8 +211,8 @@ async function updTask(ev){
     console.log(response)
     if(response.status==202){
         console.log(updateinfo)
-        if(updateinfo.taskName)document.getElementById(updateinfo.id+":taskName").innerText=updateinfo.taskName
-        if(updateinfo.procent)document.getElementById(updateinfo.id+":taskProcent").innerText=updateinfo.procent
+        if(updateinfo.taskName)document.getElementById(updateinfo.id+":taskName").innerText="Title: "+updateinfo.taskName
+        if(updateinfo.procent)document.getElementById(updateinfo.id+":taskProcent").innerText="Task status: "+updateinfo.procent
     }
 
 
@@ -263,7 +263,10 @@ async function updSuggestion(ev){
 } 
 
 async function updComment(ev){
+
+    
     ev.preventDefault();
+    console.log("asd")
     let form = new FormData(ev.currentTarget)
     let updateinfo = {
         id:ev.target.getAttribute("commentId"),
@@ -277,7 +280,7 @@ async function updComment(ev){
     });
     console.log(response)
     if(response.status==202){
-        if(updateinfo.text)document.getElementById(updateinfo.id+":suggestionText").innerText="Title: "+updateinfo.text
-        if(updateinfo.desc)document.getElementById(updateinfo.id+":suggestionDesc").innerText="Description: "+updateinfo.description
+        if(updateinfo.text)document.getElementById(updateinfo.id+":commentText").innerText="Title: "+updateinfo.text
+        if(updateinfo.desc)document.getElementById(updateinfo.id+":commentDesc").innerText="Description: "+updateinfo.description
     }
 } 

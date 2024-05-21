@@ -101,7 +101,7 @@ async function suggestions(field="",value=""){
     return data[0];
 }
 async function comments(field="",value=""){
-    const data = await doQuery(queryString("comments",field)+" ORDER by date",[value])
+    const data = await doQuery(queryString("comments",field)+" ORDER by date desc",[value])
     for(var i = 0; i < data[0].length; i++){
         const user=await users("id",data[0][i].userId)
         if(user.length==1) data[0][i].user=user[0]
@@ -175,7 +175,7 @@ async function createWorkerTask(workerTask){
     const prev = await doQuery("select * from workertask where userId= ? AND taskId= ?",[workerTask.userId,workerTask.taskId])
     if(prev[0].length!=0) throw new Error("Personen är redan med i tasket")
     const sql = "INSERT INTO workertask (userId, taskId, id) VALUES (?, ?, ?)"; 
-    let result = await doQuery(sql,[workerTask.userId, workerTask.taskId, uniqid()]);
+    const result = await doQuery(sql,[workerTask.userId, workerTask.taskId, uniqid()]);
     if((await workerHouse("userId",workerTask.userId)).length==0) await createWorkerHouse(workerTask)
     return result
 }

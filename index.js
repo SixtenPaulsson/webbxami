@@ -30,7 +30,7 @@ app.listen(3456, err=> {
     console.log("http://localhost:3456");   
 });
 
-app.get("/",async (req, res)=>{
+app.get('/',async (req, res)=>{
     try {
         let houses = await db.mainData(req.session.user);
         const workers = await db.users("worker",1);
@@ -45,7 +45,7 @@ app.get("/",async (req, res)=>{
 
 
 
-app.get("/houses",auth,async (req, res)=>{
+app.get('/houses',auth,async (req, res)=>{
     try {
         let houses = await db.houses();
         return res.json(houses);        
@@ -216,7 +216,7 @@ app.delete('/workerhouses',auth,ownOrPartOf,created,async (req, res)=>{
 //#region put
 
 //#endregion
-app.put("/houses",auth,isUser,ownOrPartOf,async (req, res)=>{
+app.put('/houses',auth,isUser,ownOrPartOf,async (req, res)=>{
     let house = [
         { field:"address", value:req.body.address },
         { field:"description", value:req.body.description },
@@ -266,15 +266,18 @@ app.put('/suggestions',auth,ownOrPartOf,created,async (req, res)=>{
 
 
 app.put('/comments',auth,ownOrPartOf,created,async (req, res)=>{
+    console.log("assd")
     let comments = [
         {field:"text", value:req.body.text },
         {field:"description", value:req.body.description }
     ];
+    
     try {
         let result = await db.update("comments",comments,req.body.id);
         return res.sendStatus(202)
         //return res.json(result)
     } catch (error) {
+        console.log(error)
         return res.sendStatus(400)
         //return res.render("error",{error:error})
     }
@@ -323,6 +326,7 @@ app.post('/logout',async (req, res)=>{
 
 
 function auth(req,res,next){
+    console.log("asd")
     if(!req.session.user) {
         return res.send("Must log in");
     }
@@ -349,12 +353,14 @@ async function ownOrPartOf(req,res,next){
 }
 
 async function created(req,res,next){
+    console.log("hej2")
     const object = await db.getObjectFromId(req.body.id)
     if(object.userId==req.session.user.id || req.session.user.worker==false) return next();
 }
 
 async function ownOrPartOf(req,res,next){
     try {
+        console.log("hej1")
         let object = await db.getObjectFromId(req.body.id)
         if(object==undefined) object = req.body
         const house = await db.getHouse(object)
@@ -374,7 +380,7 @@ async function ownOrPartOf(req,res,next){
 
 
 //Debug routes för att skapa user, ska ej finnas egentligen
-app.get("/admin",async (req, res)=>{
+app.get('/admin',async (req, res)=>{
     try {
         if(((await db.users("worker",false)).length>0)) throw new Error("Det finns redan users")
         res.render("admin");       
