@@ -21,6 +21,7 @@ async function doQuery(query,queryBind=[]){
     //När ett fel uppstår så kommer det finnas med ett sqlmeddelande i objektet
     if(data.sqlMessage) throw data
     return data;
+
 }
 //Funktion som returnerar en "select from" sats
 function queryString(table,field=""){
@@ -44,6 +45,8 @@ function queryString(table,field=""){
     }
     return sql
 }
+
+
 
 async function mainData(user={id:"",worker:false}){
     if(user.worker==false){
@@ -71,6 +74,10 @@ async function mainData(user={id:"",worker:false}){
 //- returna alla objekt från tabellen som har samma value i ett specifikt fält
 //
 
+
+
+
+
 async function houses(field="",value=""){
     const sql = queryString("houses",field)+" ORDER by address"
     const data = await doQuery(sql,[value])
@@ -81,7 +88,7 @@ async function houses(field="",value=""){
         data[0][i].suggestions = await suggestions("houseId",data[0][i].id);
     }
     return data[0];
-}
+} 
 async function suggestions(field="",value=""){
     const data = await doQuery(queryString("suggestions",field)+" ORDER by text",[value])
     for(var i = 0; i < data[0].length; i++){
@@ -122,7 +129,6 @@ async function userHouse(field="",value=""){
         const user =await users("id", data[0][i].userId)
         if(user.length==1) data[0][i].user = user[0]
     }
-    
     return data[0]; 
 }
 //#endregion
@@ -170,7 +176,7 @@ async function update(table,object=[],id){
     //Ett typiskt object som skickas in kan se ut så här:
     //[
     // {field:"address",value:"annan address"},
-    // {field:"price"  ,value:"300"}
+    // {field:"asdashlfdkdkfhsdlkhf"  ,value:"300"}
     //]
     
     //Dictinary/array över alla acceptabla värden, man ska inte kunna ändra id
@@ -200,6 +206,7 @@ async function update(table,object=[],id){
     //Lägger till så att id't blir använt i queryn
     valueArr.push(id)
     //Gör en query
+    ss
     return await doQuery(sql,valueArr);
 }
 

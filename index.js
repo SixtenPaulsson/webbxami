@@ -399,7 +399,8 @@ function getHouseId(req,res,next){
 //Debug routes för att skapa user, ska ej finnas egentligen
 app.get("/admin",async (req, res)=>{
     try {
-        if(((await db.users("worker",false)).length>0)||req.session.user.worker!=true) throw new Error("Det finns redan users")
+
+        if(((await db.users("worker",false)).length>0)) throw new Error("Det finns redan users")
         res.render("admin");       
     } catch (error){
         return res.render("error",{error:error})
