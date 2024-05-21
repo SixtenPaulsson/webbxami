@@ -1,5 +1,5 @@
 form(action="/suggestions", method="post" id=house.id+"addSuggestionBtn",  class="toggleList")
     input(type="text", name="text", placeholder="suggestion text",required)
-    input(type="text", name="description", placeholder="New Description")
+    input(type="text", name="description", placeholder="New Description",required)
     input(type="hidden", name="houseId",value=house.id, required)
     input(type="submit", value = "Add")

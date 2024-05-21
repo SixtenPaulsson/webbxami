@@ -17,11 +17,11 @@ html
                 div(class="controls")
                     if(user.worker==false)
                         button(class="toggleButton", toggleTarget="housePost") Add House
-                        button(class="toggleButton", toggleTarget="addUserForm") Add user
+                        button(class="toggleButton", toggleTarget="addWorkerForm") Add worker
                     form(action="/logout", method="post")
                         input(type="submit", value = "logout") 
                 include includes/createHouse.pug
-                include includes/createUser.pug
+                include includes/createWorker.pug
                   
                 p="inloggad"
                 p=user.name

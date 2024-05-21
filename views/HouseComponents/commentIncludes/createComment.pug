@@ -1,0 +1,5 @@
+form(action="/comments", method="post" id=task.id+"addCommentBtn",  class="toggleList")
+    input(type="text", name="text", placeholder="comment text",required)
+    input(type="text", name="description", placeholder="New Description",required)
+    input(type="hidden", name="taskId",value=task.id, required)
+    input(type="submit", value = "Add")

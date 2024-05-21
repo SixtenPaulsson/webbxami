@@ -1,0 +1,9 @@
+form(action="/workertasks", method="post" id=task.id+"addWorkerTaskbtn",  class="addWorkerTaskbtn toggleList")
+    if(workers)
+        input(list=task.id+":workerList", name="name" placeholder="Name of the worker to be added:")
+        datalist(id=task.id+":workerList") 
+            each worker in workers 
+                option(value=worker.name) 
+    input(type="hidden", name="taskId",value=task.id, required)
+    input(type="hidden", name="houseId",value=house.id, required)
+    input(type="submit", value = "Add worker to house")

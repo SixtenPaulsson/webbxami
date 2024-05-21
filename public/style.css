@@ -46,7 +46,11 @@ header{
     padding-bottom:2%;
 }
 
-
+.commentCon{
+    margin: 2%;
+    align-content: center;
+    border: 3px solid #000000;
+}
 
 
 @media only screen and (max-width: 500px) {
@@ -70,4 +74,5 @@ header{
     .controls *{
         width: 100%;
     }
+
   }

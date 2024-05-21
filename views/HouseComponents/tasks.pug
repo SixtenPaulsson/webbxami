@@ -9,20 +9,41 @@ if(house.tasks)
             h2(id=task.id+":taskName")=task.taskName
             p(id=task.id+":taskProcent")=task.procent+"-100"
             button(class="toggleButton", toggleTarget=task.id+"updTaskbtn") Edit task
-            button(data-type="delete",class="taskDeleteButton", taskId=task.id) Delete task
-            button(class="toggleButton", toggleTarget=task.id+"addUserTaskbtn") Add user
+            if(user.worker==false)
+                button(data-type="delete",class="taskDeleteButton", taskId=task.id) Delete task
+                button(class="toggleButton", toggleTarget=task.id+"addWorkerTaskbtn") Add Worker
+                include taskIncludes/createWorkerTask.pug 
             include taskIncludes/updTask.pug 
-            include taskIncludes/createUserTask.pug 
+
+
             h3 Workers in task:
-            if(task.usertasks)
-                each usertask in task.usertasks
-                    div(id=usertask.id)
-                        if(usertask.user) 
-                            p="Namn:"+usertask.user.name
-                        button(data-type="delete",class="userTaskDeleteButton", userTaskId=usertask.id) Delete user from task
-    if workers
-        h4 Workers som man kan lägga till i tasks
-        button(class="toggleButton", toggleTarget=house.id+"showWorkerbtn") Show workers
-        div(id=house.id+"showWorkerbtn",  class="toggleList")
-            each worker in workers
-                p=worker.name
+            if(task.workertasks)
+                each workertask in task.workertasks
+                    div(id=workertask.id)
+                        if(workertask.user) 
+                            p="Namn: "+workertask.user.name
+                            if(workertask.user.id==user.id || user.worker==false)
+                                button(data-type="delete",class="workerTaskDeleteButton", workerTaskId=workertask.id) Delete worker from task
+            h3 Task comments 
+            button(class="toggleButton", toggleTarget=task.id+"addCommentBtn") Add Comment
+            include commentIncludes/createComment.pug
+            if(task.comments)
+                each comment in task.comments 
+                    div(class = "fieldCon commentCon", id=comment.id)
+                        h3(id=comment.id+":commentText")="Title: "+comment.text
+                        if(comment.description)
+                        p(id=comment.id+":commentDesc")="Description: "+comment.description 
+                        p="Date: "+comment.date
+                        if(comment.user)
+                            p="Skrivet av: "+comment.user.name
+                        if(comment.userId==user.id || house.ownerId==user.id)
+                            button(class="toggleButton", toggleTarget=comment.id+"updCommentbtn") Edit comment
+                            button(data-type="delete",class="commentDeleteButton", commentId=comment.id) Delete comment
+                            include commentIncludes/updcomment.pug
+
+
+
+                    
+
+
+

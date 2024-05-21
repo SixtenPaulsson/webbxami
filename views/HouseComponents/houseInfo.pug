@@ -1,15 +1,14 @@
 div(class="fieldCon")
     h1 House info:
     if(user.worker==false)
-        button(class="toggleButton", toggleTarget=house.id+"addUserHousebtn") Add user 
+        button(class="toggleButton", toggleTarget=house.id+"addWorkerHousebtn") Add Worker 
         button(data-type="delete",class="deleteButton", houseid=house.id) Delete house
         button(class="toggleButton", toggleTarget=house.id+"updHousebtn") Edit house  
         include houseInfoComponents/updHouse.pug             
-        include houseInfoComponents/createUserHouse.pug
+        include houseInfoComponents/createWorkerHouse.pug
 div(class="fieldCon")
     h2(id=house.id+":houseAddress")="Address: "+house.address
     p(id=house.id+":houseDesc")="Description: "+house.description
     if(house.price)
         p(id=house.id+":housePrice")="Pris: "+house.price
-
-include houseInfoComponents/userHouses.pug
+include houseInfoComponents/WorkerHouses.pug

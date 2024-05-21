@@ -45,7 +45,7 @@ app.get("/",async (req, res)=>{
 
 
 
-app.get("/houses",async (req, res)=>{
+app.get("/houses",auth,async (req, res)=>{
     try {
         let houses = await db.houses();
         return res.json(houses);        
@@ -53,47 +53,8 @@ app.get("/houses",async (req, res)=>{
         return res.render("error",{error:error})
     }
 });
-
-
-
-
-app.get("/tasks",auth,async (req, res)=>{
-    try {
-        let result = await db.tasks();
-        return res.json(result)
-    } catch (error) {
-        return res.render("error",{error:error})
-    }
-});
-
-app.get("/suggestions",auth,async (req, res)=>{
-    try {
-        let result = await db.suggestions();
-        return res.json(result)
-    } catch (error) {
-        return res.render("error",{error:error})
-    }
-});
-
-app.get('/usertasks',auth,async (req, res)=>{
-    try {
-        let result = await db.userTasks();
-        return res.json(result)
-    } catch (error) {
-        return res.render("error",{error:error})
-    }
-});
-
-app.get('/userhouses',auth,async (req, res)=>{
-    try {
-        let result = await db.userHouse();
-        return res.json(result)
-    } catch (error) {
-        return res.render("error",{error:error})
-    }
-});
-
-app.get('/users',auth,async (req, res)=>{
+//Debug route, ska ej finnas
+app.get('/users',auth,isUser,async (req, res)=>{
     try {
         let result = await db.users();
         return res.json(result)
@@ -103,7 +64,7 @@ app.get('/users',auth,async (req, res)=>{
 });
 //#endregion
 //#region post
-app.post('/houses',auth,isUser,getHouseId,ownOrPartOf,async (req, res)=>{
+app.post('/houses',auth,isUser,async (req, res)=>{
     try {
         house = req.body;
         house.ownerId=req.session.user.id
@@ -114,7 +75,6 @@ app.post('/houses',auth,isUser,getHouseId,ownOrPartOf,async (req, res)=>{
     }
 });
 app.post('/tasks',auth,isUser,ownOrPartOf,async (req, res)=>{
-    
     task = req.body
     if(task.procent>100) task.procent=100
     try {
@@ -135,6 +95,17 @@ app.post('/suggestions',auth,ownOrPartOf,async (req, res)=>{
         return res.render("error",{error:error})
     }
 });
+app.post('/comments',auth,ownOrPartOf,async (req, res)=>{    
+    comment = req.body
+    comment.userId = req.session.user.id
+    try {
+        let result = await db.createComment(comment);
+        return res.redirect("/")
+    } catch (error) {
+        return res.render("error",{error:error})
+    }
+});
+
 
 app.post('/users',auth,isUser,async (req, res)=>{
     try {
@@ -147,28 +118,28 @@ app.post('/users',auth,isUser,async (req, res)=>{
         return res.render("error",{error:error});
     }
 });
-app.post('/usertasks',auth,isUser,ownOrPartOf,async (req, res)=>{
+app.post('/workertasks', auth, isUser, ownOrPartOf, async (req, res)=>{
     try {
         userName=await db.users("name",req.body.name)
         if (userName.length==0) return res.render("error",{error:{message:"Ingen user hittad"}})
         if(userName.length) userName=userName[0]
-        usertask=req.body;
-        usertask.userId = userName.id
-        let result = await db.createUserTask(usertask)
+        workertask=req.body;
+        workertask.userId = userName.id
+        let result = await db.createWorkerTask(workertask)
         return res.redirect("/")
     } catch (error) {
         return res.render("error",{error:error});
     }
 });
 
-app.post('/userhouses',auth,isUser,ownOrPartOf,async (req, res)=>{
+app.post('/workerhouses',auth,isUser,ownOrPartOf,async (req, res)=>{
     try {
         userName=await db.users("name",req.body.name)
         if (userName.length==0) return res.render("error",{error:{message:"Ingen user hittad"}})
         if(userName.length) userName=userName[0]
-        userhouse=req.body;
-        userhouse.userId = userName.id
-        let result = await db.createUserHouse(userhouse)
+        workerhouse=req.body;
+        workerhouse.userId = userName.id
+        let result = await db.createWorkerHouse(workerhouse)
         return res.redirect("/")
     } catch (error) {
         return res.render("error",{error:error});
@@ -183,20 +154,20 @@ app.delete('/houses',auth,isUser,ownOrPartOf,async (req, res)=>{
         let result = await db.remove("houses",req.body.id);
         return res.sendStatus(204)
     } catch (error) {
+        console.log(error)
         return res.render("error",{error:error});
     }
 });
 app.delete('/tasks',auth,isUser,ownOrPartOf,async (req, res)=>{
     try {
         let result = await db.remove("tasks",req.body.id);
-
         return res.sendStatus(204)
     } catch (error) {
         return res.render("error",{error:error})
     }
 });
 
-app.delete('/suggestions',auth,ownOrPartOf,async (req, res)=>{
+app.delete('/suggestions',auth,ownOrPartOf,created,async (req, res)=>{
     try {
         let result = await db.remove("suggestions",req.body.id);
         return res.sendStatus(204)
@@ -205,7 +176,16 @@ app.delete('/suggestions',auth,ownOrPartOf,async (req, res)=>{
     }
 });
 
-app.delete('/users',async (req, res)=>{
+app.delete('/comments',auth,ownOrPartOf,created,async (req, res)=>{
+    try {
+        let result = await db.remove("comments",req.body.id);
+        return res.sendStatus(204)
+    } catch (error) {
+        return res.render("error",{error:error})
+    }
+});
+
+app.delete('/users',auth,isUser,async (req, res)=>{
     try {
         let result = await db.remove("users",req.body.id);
 
@@ -214,17 +194,17 @@ app.delete('/users',async (req, res)=>{
         return res.render("error",{error:error})
     }
 });
-app.delete('/usertasks',auth,ownOrPartOf,async (req, res)=>{
+app.delete('/workertasks',auth,ownOrPartOf,created,async (req, res)=>{
     try {
-        let result = await db.remove("userTask",req.body.id);
+        let result = await db.remove("workerTask",req.body.id);
         return res.sendStatus(204)
     } catch (error) {
         return res.render("error",{error:error})
 }});
 
-app.delete('/userhouses',auth,ownOrPartOf,async (req, res)=>{
+app.delete('/workerhouses',auth,ownOrPartOf,created,async (req, res)=>{
     try {
-        let result = await db.remove("userHouse",req.body.id);
+        let result = await db.remove("workerHouse",req.body.id);
         return res.sendStatus(204)
     } catch (error) {
         return res.render("error",{error:error})
@@ -246,6 +226,7 @@ app.put("/houses",auth,isUser,ownOrPartOf,async (req, res)=>{
         await db.update("houses",house,req.body.id);
         return res.sendStatus(202)
     } catch (error) {
+        console.log(error)
         return res.sendStatus(400)
     }
 });
@@ -253,6 +234,7 @@ app.put("/houses",auth,isUser,ownOrPartOf,async (req, res)=>{
 app.put('/tasks',auth,ownOrPartOf,async (req, res)=>{
     procent=req.body.procent
     if(procent>100) procent=100
+    if(req.session.user.worker==true) req.body.taskName=undefined
     let task = [
         {field:"taskName", value:req.body.taskName },
         {field:"procent",  value:procent}
@@ -267,13 +249,29 @@ app.put('/tasks',auth,ownOrPartOf,async (req, res)=>{
     }
 });
 
-app.put('/suggestions',auth,ownOrPartOf,async (req, res)=>{
+app.put('/suggestions',auth,ownOrPartOf,created,async (req, res)=>{
     let suggestion = [
         {field:"text", value:req.body.text },
         {field:"description", value:req.body.description }
     ];
     try {
         let result = await db.update("suggestions",suggestion,req.body.id);
+        return res.sendStatus(202)
+        //return res.json(result)
+    } catch (error) {
+        return res.sendStatus(400)
+        //return res.render("error",{error:error})
+    }
+});
+
+
+app.put('/comments',auth,ownOrPartOf,created,async (req, res)=>{
+    let comments = [
+        {field:"text", value:req.body.text },
+        {field:"description", value:req.body.description }
+    ];
+    try {
+        let result = await db.update("comments",comments,req.body.id);
         return res.sendStatus(202)
         //return res.json(result)
     } catch (error) {
@@ -331,66 +329,45 @@ function auth(req,res,next){
     next();
 }
 
-async function log(req,res,next){
-    if(req.body.id) console.log(await db.getObjectFromId(req.body.id))
-    next()
-}
-
-async function ownOrPartOf(req,res,next){
-    try {
-        //Försöker hämta ut det objekt man ska ändra på ta bort
-        let object = await db.getObjectFromId(req.body.id)
-        //Ifall det inte finns är det en post istället
-        if(object == undefined) object=req.body
-        //objectet ska vara första objektet
-        if(object.length) object=object[0]
-        if(req.session.user.worker==true){
-            //Ifall det är ens egens objekt
-            if(object.userId==req.session.user.id) return next();
-            //ifall det man försöker ändra är ett task
-            if(object.usertasks){
-                if((object.usertasks.filter((x)=>x.user.id==req.session.user.id)).length>0) return next();
-            }
-        }
-        if(object.taskId){
-            object = await db.tasks("id",object.taskId)
-            if(object.length!=1) throw new Error("more than one task found")
-            object = object[0]
-        }
-        if(object.houseId){
-            object = await db.houses("id",object.houseId)
-            if(object.length!=1) throw new Error("more than one house found")
-            object = object[0]
-        }
-        if(object.ownerId==undefined && req.beforeOwner!=undefined) object.ownerId=req.beforeOwner
-        //Väldigt ful kod för post suggestions
-        if(req.session.user.worker==true){
-            if((object.userHouses.filter((x)=>x.user.id==req.session.user.id)).length>0){
-                if(req.route.path=='/suggestions' && req.route.methods['post']==true) return next();
-            }
-        }
-        if(object.ownerId!=req.session.user.id) throw new Error("You are not the owner")
-
-        
-        return next();
-        
-    } catch (error) {
-        console.log(error)
-        return res.sendStatus(403)
-    }
-
-}
-
 function isUser(req,res,next){
     if(req.session.user.worker!=true) return next();
 }
 
-function getHouseId(req,res,next){
-    req.beforeOwner=req.session.user.id;
-    next()
+async function ownOrPartOf(req,res,next){
+    try {
+        let object = await db.getObjectFromId(req.body.id)
+        if(object==undefined) object = req.body
+        const house = db.getHouse(object)
+        if(req.session.user.worker==false && house.ownerId!=req.session.user.id) throw new Error("You do not own the object")
+        if(!(house.workerHouses.find((x)=>x.user.id==req.session.user.id))) throw new Error("You aren't part of the house");
+        return next();
+    } catch (error) {
+        //Det enda som erroret används för här är för att logga, vet ej riktigt hur man skicker iväg den på bästa sätt
+        console.log(error)
+        return res.sendStatus(403)
+    }
 }
 
+async function created(req,res,next){
+    const object = await db.getObjectFromId(req.body.id)
+    if(object.userId==req.session.user.id || req.session.user.worker==false) return next();
+}
 
+async function ownOrPartOf(req,res,next){
+    try {
+        let object = await db.getObjectFromId(req.body.id)
+        if(object==undefined) object = req.body
+        const house = await db.getHouse(object)
+        if(house.ownerId==req.session.user.id)
+        if(req.session.user.worker==false && house.ownerId!=req.session.user.id) throw new Error("You do not own the object")
+        if(!(house.workerHouses.find((x)=>x.user.id==req.session.user.id)) && req.session.user.worker==true) throw new Error("You aren't part of the house");
+        return next();
+    } catch (error) {
+        //Det enda som erroret används för här är för att logga, vet ej riktigt hur man skicker iväg den på bästa sätt
+        console.log(error)
+        return res.sendStatus(403)
+    }
+}
 
 
 
@@ -399,7 +376,6 @@ function getHouseId(req,res,next){
 //Debug routes för att skapa user, ska ej finnas egentligen
 app.get("/admin",async (req, res)=>{
     try {
-
         if(((await db.users("worker",false)).length>0)) throw new Error("Det finns redan users")
         res.render("admin");       
     } catch (error){
@@ -419,6 +395,11 @@ app.post('/admin',async (req, res)=>{
         return res.render("error",{error:error});
     }
 });
+
+async function getUserId(req,res,next){
+    if(req.session.user)req.body.userId=req.session.user.id
+    next();
+}
 
 
 //#endregion

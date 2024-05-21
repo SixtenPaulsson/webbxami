@@ -11,19 +11,24 @@ el = document.querySelectorAll('.taskDeleteButton')
 el.forEach(function(knapp){
   knapp.addEventListener('click', deletetask)
 })
-ele = document.querySelectorAll('.userTaskDeleteButton')
+ele = document.querySelectorAll('.workerTaskDeleteButton')
 ele.forEach(function(knapp){
-  knapp.addEventListener('click', deleteUserTask)
+  knapp.addEventListener('click', deleteWorkerTask)
 })
 
-ele = document.querySelectorAll('.userHouseDeleteButton')
+ele = document.querySelectorAll('.workerHouseDeleteButton')
 ele.forEach(function(knapp){
-  knapp.addEventListener('click', deleteUserHouse)
+  knapp.addEventListener('click', deleteWorkerHouse)
 })
 
 ele = document.querySelectorAll('.suggestionDeleteButton')
 ele.forEach(function(knapp){
   knapp.addEventListener('click', deleteSuggestion)
+})
+
+ele = document.querySelectorAll('.commentDeleteButton')
+ele.forEach(function(knapp){
+  knapp.addEventListener('click', deleteComment)
 })
 
 upd = document.querySelectorAll('.updTaskbtn')
@@ -38,6 +43,12 @@ upd = document.querySelectorAll('.updSuggestionbtn')
 upd.forEach(function(knapp){
     knapp.addEventListener('submit', updSuggestion)
 });
+
+upd = document.querySelectorAll('.updCommentsbtn')
+upd.forEach(function(knapp){
+    knapp.addEventListener('submit', updComment)
+});
+
 
 
 toggleKnapp = document.querySelectorAll('.toggleButton')
@@ -56,8 +67,7 @@ if(visBtn) visBtn.forEach(function(knapp){
     knapp.addEventListener("click",visToggle)
 })
 function visToggle(ev){
-    ev.preventDefault();
-    console.log("asdasd")
+    ev.preventDefault();    
     ToggleName = ev.target.getAttribute("toggleTarget")
     houseId = ev.target.getAttribute("houseId")
     form1=document.getElementById(houseId+":HouseInfoCon")
@@ -106,6 +116,23 @@ async function deleteSuggestion(ev){
     }
 }
 
+async function deleteComment(ev){
+    commentId=ev.target.getAttribute("commentId")
+    console.log(commentId)
+    let response = await fetch("/comments",{
+        method:"DELETE",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: commentId})
+    });
+    console.log(response)
+    if(response.status==204){
+        document.getElementById(commentId).remove()
+    }
+    else{
+        if(response.status) console.log(response.status)
+    }
+}
+
 
 
 async function deletetask(ev){
@@ -131,35 +158,35 @@ async function deletetask(ev){
 
 
 
-async function deleteUserTask(ev){
+async function deleteWorkerTask(ev){
     //ev.preventdefault()
     console.log(ev)
-    userTaskId=ev.target.getAttribute("userTaskId")
-    let response = await fetch("/usertasks",{
+    workerTaskId=ev.target.getAttribute("workerTaskId")
+    let response = await fetch("/workertasks",{
         method:"DELETE",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: userTaskId})
+        body: JSON.stringify({ id: workerTaskId})
     });
     if(response.status==204){
-        console.log(userTaskId)
-        document.getElementById(userTaskId).remove()
+        console.log(workerTaskId)
+        document.getElementById(workerTaskId).remove()
     }
     else{
         if(response.status) console.log(response.status)
     }
 }
 
-async function deleteUserHouse(ev){
+async function deleteWorkerHouse(ev){
     //ev.preventdefault()
     console.log(ev)
-    userHouseId=ev.target.getAttribute("userHouseId")
-    let response = await fetch("/userhouses",{
+    workerHouseId=ev.target.getAttribute("workerHouseId")
+    let response = await fetch("/workerhouses",{
         method:"DELETE",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: userHouseId})
+        body: JSON.stringify({ id: workerHouseId})
     });
     if(response.status==204){
-        document.getElementById(userHouseId).remove()
+        document.getElementById(workerHouseId).remove()
     }
     else{
         if(response.status) console.log(response.status)
@@ -183,8 +210,9 @@ async function updTask(ev){
     });
     console.log(response)
     if(response.status==202){
-        if(updateinfo.taskName!="")document.getElementById(updateinfo.id+":taskName").innerText=updateinfo.taskName
-        if(updateinfo.procent!="")document.getElementById(updateinfo.id+":taskProcent").innerText=updateinfo.procent+"-100"
+        console.log(updateinfo)
+        if(updateinfo.taskName)document.getElementById(updateinfo.id+":taskName").innerText=updateinfo.taskName
+        if(updateinfo.procent)document.getElementById(updateinfo.id+":taskProcent").innerText=updateinfo.procent
     }
 
 
@@ -207,9 +235,9 @@ async function updHouse(ev){
     });
     console.log(response)
     if(response.status==202){
-        if(updateinfo.address!="")document.getElementById(updateinfo.id+":houseAddress").innerText="Address: "+updateinfo.address
-        if(updateinfo.description!="")document.getElementById(updateinfo.id+":houseDesc").innerText="Description: "+updateinfo.description
-        if(updateinfo.price!="")document.getElementById(updateinfo.id+":housePrice").innerText="Pris: "+updateinfo.price
+        if(updateinfo.address)document.getElementById(updateinfo.id+":houseAddress").innerText="Address: "+updateinfo.address
+        if(updateinfo.description)document.getElementById(updateinfo.id+":houseDesc").innerText="Description: "+updateinfo.description
+        if(updateinfo.price)document.getElementById(updateinfo.id+":housePrice").innerText="Pris: "+updateinfo.price
     }
 } 
 
@@ -229,7 +257,27 @@ async function updSuggestion(ev){
     });
     console.log(response)
     if(response.status==202){
-        if(updateinfo.text!="")document.getElementById(updateinfo.id+":suggestionText").innerText="Title: "+updateinfo.text
-        if(updateinfo.desc!="")document.getElementById(updateinfo.id+":suggestionDesc").innerText="Description: "+updateinfo.description
+        if(updateinfo.text)document.getElementById(updateinfo.id+":suggestionText").innerText="Title: "+updateinfo.text
+        if(updateinfo.desc)document.getElementById(updateinfo.id+":suggestionDesc").innerText="Description: "+updateinfo.description
+    }
+} 
+
+async function updComment(ev){
+    ev.preventDefault();
+    let form = new FormData(ev.currentTarget)
+    let updateinfo = {
+        id:ev.target.getAttribute("commentId"),
+        text:form.get("text"),
+        description:form.get("description"),
+    }
+    let response = await fetch("/comments",{
+        method:"PUT",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateinfo)
+    });
+    console.log(response)
+    if(response.status==202){
+        if(updateinfo.text)document.getElementById(updateinfo.id+":suggestionText").innerText="Title: "+updateinfo.text
+        if(updateinfo.desc)document.getElementById(updateinfo.id+":suggestionDesc").innerText="Description: "+updateinfo.description
     }
 } 

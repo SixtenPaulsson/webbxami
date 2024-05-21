@@ -30,9 +30,10 @@ function queryString(table,field=""){
         "houses":["id","ownerId","address","description","price"],
         "tasks":["id","taskName","procent","houseId"],
         "users":["id","worker","name","password"],
-        "usertask":["id","userId","taskId"],
-        "userhouse":["id","userId","houseId"],
-        "suggestions":["id","text","houseId","userId","date","description"]
+        "workertask":["id","userId","taskId"],
+        "workerhouse":["id","userId","houseId"],
+        "suggestions":["id","text","houseId","userId","date","description"],
+        "comments":["id","text","taskId","userId","date","description"]
     }
     //Ifall inte tablet finns
     if(!(table in fields)) throw new Error("Table for query is not valid")
@@ -53,16 +54,13 @@ async function mainData(user={id:"",worker:false}){
         const data = await houses("ownerId",user.id)
         return data
     }
-    getObjectFromId('xe88aj8lweogogn')
-    const data = await doQuery("select * from houses where id = (SELECT houseId from userhouse WHERE userId = ?)",[user.id]);
+    const data = await doQuery("select * from houses where id = (SELECT houseId from workerhouse WHERE userId = ?)",[user.id]);
     //Denna loopen kanske verkar vara helt redundant men här hämtas även tasks och sånt
     for(var i = 0; i < data[0].length; i++){ 
         const house = await houses("id",data[0][i].id)
         data[0][i] = house[0]
-        data[0][i].tasks = data[0][i].tasks.filter((x)=>x.usertasks.filter((y)=>y.userId==user.id).length>0);
+        data[0][i].tasks = data[0][i].tasks.filter((x)=>x.workertasks.filter((y)=>y.userId==user.id).length>0);
     }
-    
-
     return data[0]
 }
 
@@ -84,7 +82,7 @@ async function houses(field="",value=""){
     //Hämtar ut alla tasks som är kopplade till ett hus
     for(var i = 0; i < data[0].length; i++){
         data[0][i].tasks = await tasks("houseId",data[0][i].id)
-        data[0][i].userHouses = await userHouse("houseId",data[0][i].id)
+        data[0][i].workerHouses = await workerHouse("houseId",data[0][i].id)
         data[0][i].suggestions = await suggestions("houseId",data[0][i].id);
     }
     return data[0];
@@ -102,11 +100,26 @@ async function suggestions(field="",value=""){
     }
     return data[0];
 }
+async function comments(field="",value=""){
+    const data = await doQuery(queryString("comments",field)+" ORDER by date",[value])
+    for(var i = 0; i < data[0].length; i++){
+        const user=await users("id",data[0][i].userId)
+        if(user.length==1) data[0][i].user=user[0]
+        else{
+            data[0][i].user = {name: "user not found"}
+        }
+    }
+    return data[0];
+}
+
+
+
 
 async function tasks(field="",value=""){
     const data = await doQuery(queryString("tasks",field)+" ORDER by taskName",[value])
     for(var i = 0; i < data[0].length; i++){
-        data[0][i].usertasks=await userTasks("taskId",data[0][i].id)
+        data[0][i].workertasks=await workerTasks("taskId",data[0][i].id)
+        data[0][i].comments=await comments("taskId",data[0][i].id)
     }
     return data[0];
 }
@@ -115,16 +128,16 @@ async function users(field="",value=""){
     const data = await doQuery((queryString("users",field)+ " order by name"),[value]);
     return data[0]
 }
-async function userTasks(field="",value=""){
-    const data = await doQuery(queryString("usertask",field),[value]);
+async function workerTasks(field="",value=""){
+    const data = await doQuery(queryString("workertask",field),[value]);
     for(var i = 0; i < data[0].length; i++){
         const user =await users("id", data[0][i].userId)
         if(user.length==1) data[0][i].user = user[0]
     }
     return data[0]; 
 }
-async function userHouse(field="",value=""){
-    const data = await doQuery(queryString("userhouse",field),[value]);
+async function workerHouse(field="",value=""){
+    const data = await doQuery(queryString("workerhouse",field),[value]);
     for(var i = 0; i < data[0].length; i++){
         const user =await users("id", data[0][i].userId)
         if(user.length==1) data[0][i].user = user[0]
@@ -148,24 +161,30 @@ async function createSuggestion(suggestion){
     const sql = "INSERT INTO suggestions (id, text, description, houseId, userId) VALUES (?, ?, ?, ?, ?)"; 
     return await doQuery(sql,[uniqid(),suggestion.text,suggestion.description,suggestion.houseId,suggestion.userId]);
 }
+
+async function createComment(comment){
+    const sql = "INSERT INTO comments (id, text, description, taskId, userId) VALUES (?, ?, ?, ?, ?)"; 
+    return await doQuery(sql,[uniqid(),comment.text,comment.description,comment.taskId,comment.userId]);
+}
+
 async function createUser(user){
     const sql = "INSERT INTO users (id, worker, name, password) VALUES (?, ?, ?, ?)"; 
     return await doQuery(sql,[uniqid(), user.worker,user.name, user.password]);
 }
-async function createUserTask(userTask){
-    const prev = await doQuery("select * from usertask where userId= ? AND taskId= ?",[userTask.userId,userTask.taskId])
+async function createWorkerTask(workerTask){
+    const prev = await doQuery("select * from workertask where userId= ? AND taskId= ?",[workerTask.userId,workerTask.taskId])
     if(prev[0].length!=0) throw new Error("Personen är redan med i tasket")
-    const sql = "INSERT INTO usertask (userId, taskId, id) VALUES (?, ?, ?)"; 
-    let result = await doQuery(sql,[userTask.userId, userTask.taskId, uniqid()]);
-    if((await userHouse("userId",userTask.userId)).length==0) await createUserHouse(userTask)
+    const sql = "INSERT INTO workertask (userId, taskId, id) VALUES (?, ?, ?)"; 
+    let result = await doQuery(sql,[workerTask.userId, workerTask.taskId, uniqid()]);
+    if((await workerHouse("userId",workerTask.userId)).length==0) await createWorkerHouse(workerTask)
     return result
 }
 
-async function createUserHouse(userHouse){
-    const prev = await doQuery("select * from userhouse where userId= ? AND houseId= ?",[userHouse.userId,userHouse.houseId])
+async function createWorkerHouse(workerHouse){
+    const prev = await doQuery("select * from workerhouse where userId= ? AND houseId= ?",[workerHouse.userId,workerHouse.houseId])
     if(prev[0].length!=0) throw new Error("Personen är redan med i huset")
-    const sql = "INSERT INTO userhouse (userId, houseId, id) VALUES (?, ?, ?)";
-    return await doQuery(sql,[userHouse.userId, userHouse.houseId, uniqid()]);
+    const sql = "INSERT INTO workerhouse (userId, houseId, id) VALUES (?, ?, ?)";
+    return await doQuery(sql,[workerHouse.userId, workerHouse.houseId, uniqid()]);
 }
 //#endregion
 //Väldigt flexibel update funktion
@@ -184,7 +203,8 @@ async function update(table,object=[],id){
         "houses":["ownerId","address","description","price"],
         "tasks":["taskName","procent"],
         "users":["worker","name","password"],
-        "suggestions":["text","description"]
+        "suggestions":["text","description"],
+        "comments":["text","description"]
     }
     //Queryn ska bara kunna uppdatera de tables som finns
     if(tableFields[table]==undefined) throw new Error("Table is not valid")
@@ -206,14 +226,13 @@ async function update(table,object=[],id){
     //Lägger till så att id't blir använt i queryn
     valueArr.push(id)
     //Gör en query
-    ss
     return await doQuery(sql,valueArr);
 }
 
 //Flexibel delete funktion, tar bort från en viss tabell där id't är lika med något
 //Borde heta delete men javascript är jobbigt
 async function remove(table, id){
-    const validTables = ["houses","tasks","users","userTask","userHouse","suggestions"]    
+    const validTables = ["houses","tasks","users","workerTask","workerHouse","suggestions",'comments']    
     if(!validTables.includes(table)) throw new Error("Not valid table");
     const sql = "DELETE FROM "+table+" WHERE id = ?";
     return await doQuery(sql,[id]); 
@@ -224,30 +243,28 @@ async function remove(table, id){
 async function getObjectFromId(id)
 {
     let obj=await houses("id",id)
-    if(obj.length>0) return obj
+    if(obj.length>0) return obj[0]
     obj=await tasks("id",id)
-    if(obj.length>0) return obj
-    obj=await userHouse("id",id)
-    if(obj.length>0) return obj
-    obj=await userTasks("id",id)
-    if(obj.length>0) return obj
+    if(obj.length>0) return obj[0]
+    obj=await workerHouse("id",id)
+    if(obj.length>0) return obj[0]
+    obj=await workerTasks("id",id)
+    if(obj.length>0) return obj[0]
     obj=await suggestions("id",id)
-    if(obj.length>0) return obj
+    if(obj.length>0) return obj[0]
+    obj=await comments("id",id)
+    if(obj.length>0) return obj[0]
 }
 
 
-/* async function isPartOf(id,user={worker:"",id:""}){
-    const object = await getObjectFromId(id)
-    if(object.userId){
-        return object.userId == user.id
-    }
-    if(object.userTasks){
-        for (var i = 0; i < object.userTasks.length; i++){
-            if(object.userTasks[i].user.id==user.id) return true
-        }
-        return false
-    }
-} */
+
+
+
+async function getHouse(object){
+    if(object.taskId)object = (await tasks("id",object.taskId))[0]
+    if(object.houseId)object = (await houses("id",object.houseId))[0]
+    return object
+}
 
 
 
@@ -256,6 +273,7 @@ module.exports = {createHouse,houses,
                   createTask, tasks,
                   createUser, users,
                   createSuggestion,suggestions,
-                  createUserTask,userTasks,
-                  createUserHouse,userHouse,
-                  mainData,update,remove,getObjectFromId};
+                  createComment,comments,
+                  createWorkerTask,workerTasks,
+                  createWorkerHouse,workerHouse,
+                  mainData,update,remove,getObjectFromId,getHouse};
