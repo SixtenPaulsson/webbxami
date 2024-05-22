@@ -88,7 +88,7 @@ async function houses(field="",value=""){
     return data[0];
 } 
 async function suggestions(field="",value=""){
-    const data = await doQuery(queryString("suggestions",field)+" ORDER by text",[value])
+    const data = await doQuery(queryString("suggestions",field)+" ORDER by date desc",[value])
     for(var i = 0; i < data[0].length; i++){
         const user=await users("id",data[0][i].userId)
         if(user.length==1) data[0][i].user=user[0]

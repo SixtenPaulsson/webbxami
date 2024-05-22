@@ -1,8 +1,8 @@
 form(action="/workerhouses", method="post" id=house.id+"addWorkerHousebtn",  class="addWorkerHousebtn toggleList")
     if(workers)
-        input(list=house.id+":workerList", name="name" placeholder="Name of the worker to be added:")
-        datalist(id=house.id+":workerList") 
+        label(for=house.id+":workerList") Name of the worker to be added:
+        select(id=house.id+":workerList" name="name" form=house.id+"addWorkerHousebtn",required)
             each worker in workers 
-                option(value=worker.name) 
+                option(value=worker.name)=worker.name
     input(type="hidden", name="houseId",value=house.id, required)
     input(type="submit", value = "Add worker to house")

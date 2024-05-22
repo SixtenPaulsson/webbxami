@@ -1,14 +1,13 @@
 form(action="/tasks", id=task.id+"updTaskbtn",  class="updTaskbtn toggleList" taskId=task.id)
     if(user.worker==false)
         input(type="text", name="taskName", placeholder="task name")
-
-    input(list=task.id+":taskStatus", name="procent" placeholder="new Status of task:")
-    datalist(id=task.id+":taskStatus") 
-        option(value="Färdigt") 
-        option(value="Färdigställande") 
-        option(value="Nästan färdigt") 
-        option(value="Hälften") 
-        option(value="Felsökning pågår")
-        option(value="Påbörjad") 
-        option(value="Inte påbörjad") 
+    label(for=task.id+":taskStatus") new status of task:
+    select(id=task.id+":taskStatus" name="procent" form=task.id+"updTaskbtn")
+        option(value="Färdigt") Färdigt
+        option(value="Färdigställande") Färdigställande
+        option(value="Nästan färdigt") Nästan färdigt
+        option(value="Hälften") Hälften
+        option(value="Felsökning pågår") Felsökning pågår
+        option(value="Påbörjad") Påbörjad
+        option(value="Inte påbörjad") Inte påbörjad
     input(type="submit", value = "Add")

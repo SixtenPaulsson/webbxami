@@ -20,6 +20,10 @@ input{
     width: 100%;
     padding:1%;
 }
+select{
+    width: 100%;
+    padding:1%;
+}
 .houseCon{
     border: 1px solid #909090;
     min-height: 50vh;

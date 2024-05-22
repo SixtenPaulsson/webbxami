@@ -22,7 +22,7 @@ if(house.tasks)
                     div(id=workertask.id)
                         if(workertask.user) 
                             p="Namn: "+workertask.user.name
-                            if(workertask.user.id==user.id || user.worker==false)
+                            if(user.worker==false)
                                 button(data-type="delete",class="workerTaskDeleteButton", workerTaskId=workertask.id) Delete worker from task
             h3 Task comments 
             button(class="toggleButton", toggleTarget=task.id+"addCommentBtn") Add Comment

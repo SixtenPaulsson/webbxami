@@ -58,7 +58,14 @@ if(toggleKnapp) toggleKnapp.forEach(function(knapp){
 function toggleButton(ev){
     idName = ev.target.getAttribute("toggleTarget")
     let form = document.getElementById(idName);
-    form.style.display = form.style.display != "block" ? "block" : "none";  
+    elementVisi = form.style.display != "block" ? "block" : "none";
+
+    //Hides all other elements
+    let elements = document.querySelectorAll(".toggleList")  
+    if(elements) elements.forEach(function(knapp){
+        knapp.style.display = "none"
+    });
+    form.style.display = elementVisi
 }
 
 

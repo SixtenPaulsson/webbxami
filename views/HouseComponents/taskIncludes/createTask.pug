@@ -1,13 +1,13 @@
 form(action="/tasks", method="post" id=house.id+"addTaskBtn",  class="addTaskBtn toggleList")
     input(type="text", name="taskName", placeholder="task name", required)
-    input(list=house.id+":taskStatus", name="procent", placeholder="Status på task", required)
-    datalist(id=house.id+":taskStatus") 
-        option(value="Färdigt") 
-        option(value="Färdigställande") 
-        option(value="Nästan färdigt") 
-        option(value="Hälften") 
-        option(value="Felsökning pågår")
-        option(value="Påbörjad") 
-        option(value="Inte påbörjad") 
+    label(for=house.id+":taskStatus") Select status:
+    select(id=house.id+":taskStatus" name="procent" form=house.id+"addTaskBtn")
+        option(value="Färdigt") Färdigt
+        option(value="Färdigställande") Färdigställande
+        option(value="Nästan färdigt") Nästan färdigt
+        option(value="Hälften") Hälften
+        option(value="Felsökning pågår") Felsökning pågår
+        option(value="Påbörjad") Påbörjad
+        option(value="Inte påbörjad") Inte påbörjad
     input(type="hidden", name="houseId",value=house.id, required)
     input(type="submit", value = "Add")

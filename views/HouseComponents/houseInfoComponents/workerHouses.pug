@@ -3,5 +3,5 @@ if(house.workerHouses)
         div(id=workerHouse.id)
             if(workerHouse.user)
                 p=workerHouse.user.name
-                if(workerHouse.user.id==user.id || user.worker==false)
+                if(user.worker==false)
                     button(data-type="delete",class="workerHouseDeleteButton", workerHouseId=workerHouse.id) Delete worker from house

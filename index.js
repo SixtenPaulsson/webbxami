@@ -75,12 +75,14 @@ app.post('/houses',auth,isUser,async (req, res)=>{
     }
 });
 app.post('/tasks',auth,isUser,ownOrPartOf,async (req, res)=>{
+    console.log(req.body)
     task = req.body
     if(task.procent>100) task.procent=100
     try {
         let result = await db.createTask(task);
         return res.redirect("/")
     } catch (error) {
+        console.log("error")
         return res.render("error",{error:error})
     }
 });
@@ -134,6 +136,7 @@ app.post('/workertasks', auth, isUser, ownOrPartOf, async (req, res)=>{
 
 app.post('/workerhouses',auth,isUser,ownOrPartOf,async (req, res)=>{
     try {
+        console.log(req.body)
         userName=await db.users("name",req.body.name)
         if (userName.length==0) return res.render("error",{error:{message:"Ingen user hittad"}})
         if(userName.length) userName=userName[0]
@@ -142,6 +145,7 @@ app.post('/workerhouses',auth,isUser,ownOrPartOf,async (req, res)=>{
         let result = await db.createWorkerHouse(workerhouse)
         return res.redirect("/")
     } catch (error) {
+        console.log(error)
         return res.render("error",{error:error});
     }
 });
@@ -232,6 +236,7 @@ app.put('/houses',auth,isUser,ownOrPartOf,async (req, res)=>{
 });
 
 app.put('/tasks',auth,ownOrPartOf,async (req, res)=>{
+    console.log(req.body)
     procent=req.body.procent
     if(procent>100) procent=100
     if(req.session.user.worker==true) req.body.taskName=undefined
