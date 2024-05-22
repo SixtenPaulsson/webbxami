@@ -266,7 +266,6 @@ app.put('/suggestions',auth,ownOrPartOf,created,async (req, res)=>{
 
 
 app.put('/comments',auth,ownOrPartOf,created,async (req, res)=>{
-    console.log("assd")
     let comments = [
         {field:"text", value:req.body.text },
         {field:"description", value:req.body.description }
@@ -326,7 +325,6 @@ app.post('/logout',async (req, res)=>{
 
 
 function auth(req,res,next){
-    console.log("asd")
     if(!req.session.user) {
         return res.send("Must log in");
     }
