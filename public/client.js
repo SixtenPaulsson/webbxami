@@ -65,6 +65,7 @@ function toggleButton(ev){
     if(elements) elements.forEach(function(knapp){
         knapp.style.display = "none"
     });
+    //Toggles the current element
     form.style.display = elementVisi
 }
 
