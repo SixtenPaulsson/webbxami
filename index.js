@@ -338,6 +338,7 @@ function auth(req,res,next){
 
 function isUser(req,res,next){
     if(req.session.user.worker!=true) return next();
+    return res.send("No workers/not logged in users allowed");
 }
 
 async function ownOrPartOf(req,res,next){
